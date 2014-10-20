@@ -1,4 +1,4 @@
-MRShell
+MrShell
 =======
 
 > Map-Reduce inspired Shell.
@@ -15,8 +15,8 @@ Run the following:
 
 ## Usage
 
-To run the Shell, execute:
+To run MrShell, execute:
 
 ```bash
-./shell.out
+./mrsh.out
 ```

@@ -1,9 +1,12 @@
 #/bin/bash
 
 echo "Lexing grammar"
-lex -o shell.lex.yy.c shell.l
+lex -o mrsh.lex.yy.c mrsh.l
 
 echo "Compiling Lex output"
-cc shell.lex.yy.c -ll -o shell.out
+cc mrsh.lex.yy.c -ll -o mrsh.out
+
+echo "Cleaning up"
+rm mrsh.lex.yy.c
 
 echo "Done!"

@@ -10,7 +10,7 @@ MrShell
 Run the following:
 
 ```bash
-./build.sh
+make
 ```
 
 ## Usage
@@ -18,5 +18,5 @@ Run the following:
 To run MrShell, execute:
 
 ```bash
-./mrsh.out
+./build/mrsh
 ```

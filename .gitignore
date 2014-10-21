@@ -1,6 +1,9 @@
 # 
 *.lex.yy.c
 
+# Directories
+build/
+
 # Object files
 *.o
 *.ko

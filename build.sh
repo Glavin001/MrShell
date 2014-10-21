@@ -10,4 +10,4 @@ echo "Cleaning up"
 rm mrsh.lex.yy.c
 
 echo "Done!"
-return 0;
+exit 0;

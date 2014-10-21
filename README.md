@@ -1,4 +1,4 @@
-MrShell
+MrShell [![Build Status](https://travis-ci.org/Glavin001/MrShell.svg?branch=master)](https://travis-ci.org/Glavin001/MrShell)
 =======
 
 > Map-Reduce inspired Shell.

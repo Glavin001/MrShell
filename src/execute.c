@@ -23,14 +23,25 @@
 
 void execute(char **argv)
 {
+    // Check for built-in functions
+    if (strcmp(argv[0], "cd") == 0) {
+        // Change Directory
+        if (chdir(argv[1]) == 0) {
+            return;
+        } else {
+            printf("No such file or directory '%s'.\n", argv[1]);
+            return;
+        }
+    }
+
      pid_t  pid;
      if ((pid = fork()) < 0) {     /* fork a child process           */
-          printf("*** ERROR: forking child process failed\n");
+          printf("*** ERROR: forking child process failed.\n");
           exit(1);
      }
      else if (pid == 0) {          /* for the child process:         */
           if (execvp(*argv, argv) < 0) {     /* execute the command  */
-               printf("*** ERROR: exec failed\n");
+               printf("*** ERROR: exec failed.\n");
                exit(1);
           }
      }
@@ -39,7 +50,7 @@ void execute(char **argv)
           int wc = wait(NULL); //is child finished?
           if (wc == -1)
           {
-            printf("*** Error: wait failed");
+            printf("*** Error: wait failed.\n");
             exit(1);
           }
      }

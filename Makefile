@@ -35,7 +35,7 @@ program_INCLUDE_DIRS :=
 program_LIBRARY_DIRS :=
 
 # This is a place holder. If you used program_LIBRARIES := boost_signals, then libboost_signals would be linked in.
-program_LIBRARIES := readline ncurses
+program_LIBRARIES := readline
 
 # CFlags
 CFLAGS += -Wall -Wextra

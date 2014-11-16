@@ -35,8 +35,10 @@ program_INCLUDE_DIRS :=
 program_LIBRARY_DIRS :=
 
 # This is a place holder. If you used program_LIBRARIES := boost_signals, then libboost_signals would be linked in.
-program_LIBRARIES := readline
+program_LIBRARIES := readline ncurses
 
+# CFlags
+CFLAGS += -Wall -Wextra
 
 # This adds -I$(includedir) for every include directory given in $(program_INCLUDE_DIRS)... so if you used ./include, it would expand to -I./include
 # Remember that CPPFLAGS is the C preprocessor flags, so anything that compiles a C or C++ source file into an object file will use this flag.
@@ -64,7 +66,7 @@ all: $(program_NAME)
 # so if CXXFLAGS, CPPFLAGS, LDFLAGS, and TARGET_ARCH are undefined, but CXX is g++, then it will expand to g++ $(program_OBJS) -o $(program_NAME).
 #
 $(program_NAME): $(program_OBJS) directories
-	$(LINK.cc) $(program_OBJS) -o $(BLDDIR)/$(program_NAME)
+	$(CC) ${CFLAGS} $(program_OBJS) -o $(BLDDIR)/$(program_NAME) ${LDFLAGS}
 
 # Note that the line that starts with $(LINK.cc) is indented with a single tab. This is very important! Otherwise, it will not work.
 
@@ -85,3 +87,10 @@ clean:
 # The distclean target depends on the clean target (so executing distclean will cause clean to be executed), but we don't add anything else.
 #
 distclean: clean
+
+depend:
+	makedepend -- $(CPPFLAGS) $(CFLAGS) -- $(program_C_SRCS)
+
+# Don't place anything below this line, since
+# the make depend program will overwrite it
+# DO NOT DELETE THIS LINE -- make depend depends on it.

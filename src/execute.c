@@ -5,6 +5,22 @@
 #include <string.h>
 #include <pthread.h>
 
+
+// void *execute(void *cmd_void_ptr)
+// {
+//     // struct commandArgs *cmd = (struct commandArgs *)cmd_void_ptr;
+//     // char **argv = cmd->argv;
+//     char **argv = (char **) cmd_void_ptr;
+//     printf("Command: %s\n", argv[0]);
+//     if (execvp(*argv, argv) < 0) {     
+//         /* execute the command  */
+//         printf("*** ERROR: exec failed\n");
+//         exit(1);
+//     }
+//     return 0;
+// }
+
+
 void execute(char **argv)
 {
      pid_t  pid;

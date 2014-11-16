@@ -17,22 +17,6 @@
 //     char *argv[64];
 // };
 
-
-// void *execute(void *cmd_void_ptr)
-// {
-//     // struct commandArgs *cmd = (struct commandArgs *)cmd_void_ptr;
-//     // char **argv = cmd->argv;
-//     char **argv = (char **) cmd_void_ptr;
-//     printf("Command: %s\n", argv[0]);
-//     if (execvp(*argv, argv) < 0) {     
-//         /* execute the command  */
-//         printf("*** ERROR: exec failed\n");
-//         exit(1);
-//     }
-//     return 0;
-// }
-
-
 // === Main ===
 /**
 Start of program
@@ -62,12 +46,14 @@ int main (void) //(int argc, const char** argv)
                 line[--len] = '\0';
             // printf("%s\n", line);
         }
-      printf("Line: %s\n", line);
+      //printf("Line: %s\n", line);
       parse(line, argv);       /*   parse the line              */
-      printf("Argv: %s\n", argv[0]);
-      continue;
+      //printf("Argv: %s\n", argv[0]);
 
-      if (strcmp(argv[0], "exit") == 0)  /* is it an "exit"?     */
+      if (argv[0] == NULL) {
+        printf("Please enter a valid command.\n");
+        continue;
+      } else if (strcmp(argv[0], "exit") == 0)  /* is it an "exit"?     */
       {
            exit(0);            /*   exit if it is                */
       } else if (strcmp(line, "") == 0)

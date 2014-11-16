@@ -35,7 +35,7 @@ program_INCLUDE_DIRS :=
 program_LIBRARY_DIRS :=
 
 # This is a place holder. If you used program_LIBRARIES := boost_signals, then libboost_signals would be linked in.
-program_LIBRARIES :=
+program_LIBRARIES := readline
 
 
 # This adds -I$(includedir) for every include directory given in $(program_INCLUDE_DIRS)... so if you used ./include, it would expand to -I./include

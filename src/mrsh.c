@@ -35,7 +35,7 @@ int main (void) //(int argc, const char** argv)
     printWelcome();
 
     char *line;
-    char  *argv[64];              /* the command line argument      */
+    char *argv[64];              /* the command line argument      */
     // struct commandArgs cmd;
     // pthread_t run_thread;
     char cwd[1024];
@@ -46,11 +46,12 @@ int main (void) //(int argc, const char** argv)
         // Get Current Working Directory
         if (getcwd(cwd, sizeof(cwd)) != NULL)
         {
-
+            // Get current user
             char *user = getenv("USER");
             if(user == NULL) {
                 exit(1);
             }
+
             // Prompt User
             sprintf(promptMessage, 
                 "%s%s%s@%s%s%s%s", 
@@ -65,6 +66,7 @@ int main (void) //(int argc, const char** argv)
                 exit(1);
             }
 
+            // Add the line to history
             if (line[0]!=0) {
                 add_history(line);
             }
@@ -73,28 +75,27 @@ int main (void) //(int argc, const char** argv)
             parse(line, argv);       /*   parse the line              */
             //printf("Argv: %s\n", argv[0]);
 
+            // If no parameters restart loop
             if (argv[0] == NULL)
             {
                 //printf("Please enter a valid command.\n");
                 continue;
             }
-            else if (strcmp(line, "exit") == 0)    /* is it an "exit"?     */
+            else if (strcmp(line, "exit") == 0 || strcmp(line, "quit") == 0) 
             {
-                break;            /*   exit if it is                */
+                // If user wishes to exit mrsh break out of loop
+                break;
             }
-            else
+            else // Else execute command
             {
-                execute(argv);           /* otherwise, execute the command */
+                execute(argv);
             }
-
         }
         else
         {
-            perror("getcwd() error");
+            perror("Error: Couldn't get the current directory, weird.");
             exit(1);
         }
-
-
     }
 
     printf("\nMrShell piping out!\n");

@@ -97,7 +97,7 @@ int main (void) //(int argc, const char** argv)
 
     }
 
-    printf("\nGoodbye!\n");
+    printf("\nMrShell piping out!\n");
 
     return 0;
 }

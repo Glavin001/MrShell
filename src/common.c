@@ -1,7 +1,6 @@
-#include <stdio.h>      /* printf */
-
-#include "welcome.h"
-#include "chalk.h"
+#include <stdio.h>   // printf
+#include "welcome.h" // welcome screen constants
+#include "chalk.h"   // color constants
 
 // === Helpers ===
 void printWelcome ()

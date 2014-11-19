@@ -1,18 +1,17 @@
-/* strtol example */
-#include <stdio.h>      /* printf */
-#include <stdlib.h>     /* strtol */
-#include <unistd.h>
-#include <string.h>
+#include <stdio.h>   // printf, sprintf, perror
+#include <stdlib.h>  // strtol, getenv
+#include <unistd.h>  // getcwd
+#include <string.h>  // strcmp
 #include <pthread.h>
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <readline/readline.h> // readline
+#include <readline/history.h>  // add_history
 
 //
-#include "common.h"
-#include "parse.h"
-#include "execute.h"
-#include "chalk.h"
+#include "common.h"  // printWelcome
+#include "parse.h"   // parse
+#include "execute.h" // execute
+#include "chalk.h"   // color constants
 
 // === Structs ===
 // struct commandArgs {
@@ -21,15 +20,7 @@
 //     char *argv[64];
 // };
 
-// === Main ===
-/**
-Start of program
-
-@param argc argument count
-@param argv argument vector
-@return an integer indicating success or failure.
-*/
-int main (void) //(int argc, const char** argv)
+int main (void)
 {
 
     printWelcome();
@@ -48,16 +39,17 @@ int main (void) //(int argc, const char** argv)
         {
             // Get current user
             char *user = getenv("USER");
-            if(user == NULL) {
+            if(user == NULL) 
+            {
                 exit(1);
             }
 
             // Prompt User
             sprintf(promptMessage, 
-                "%s%s%s@%s%s%s%s", 
-                KRED, user, KNORMAL, 
-                KBLUE, cwd, KNORMAL, 
-                "$ ");
+                    "%s%s%s@%s%s%s%s", 
+                    KRED, user, KNORMAL, 
+                    KBLUE, cwd, KNORMAL, 
+                    "$ ");
             line = readline(promptMessage);
 
             if (line == NULL)

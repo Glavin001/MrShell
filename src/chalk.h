@@ -1,13 +1,13 @@
-#ifndef CHALK_H_INCLUDED
-#define CHALK_H_INCLUDED
-/* ^^ these are the include guards */
-
 /*
-ASCII styles are taken from
+ASCII/ANSI styles are taken from
 https://github.com/sindresorhus/ansi-styles/blob/master/index.js
 More info
 http://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 */
+
+#ifndef CHALK_H_INCLUDED
+#define CHALK_H_INCLUDED
+
 #define KRESET "\033[0m"
 
 // Colours

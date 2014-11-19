@@ -5,6 +5,8 @@
 /*
 ASCII styles are taken from
 https://github.com/sindresorhus/ansi-styles/blob/master/index.js
+More info
+http://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 */
 #define KRESET "\033[0m"
 
@@ -18,7 +20,7 @@ https://github.com/sindresorhus/ansi-styles/blob/master/index.js
 #define KBLUE  "\x1B[34m"
 #define KMAGENTA  "\x1B[35m"
 #define KCYAN  "\x1B[36m"
-#define KWHTITE  "\x1B[37m"
+#define KWHITE  "\x1B[37m"
 #define KGRAY "\x1B[90m"
 
 // Backgrounds

@@ -22,28 +22,32 @@
 
 void execute(char **argv)
 {
+    printf("\nCommands: %s %s\n", argv[0], argv[1]);
     // Check for built-in functions
     if (strcmp(argv[0], "cd") == 0) 
     {
         // If using shortcut ~ for home, fix up path
         if (argv[1][0] == '~')
         {
-            // Get the current users home directory
-            char home[256];
-            snprintf(home, sizeof home, "%s%s%s", "/Users/", getenv("USER"), "/");
-
             // If deeper than home, make path
             if (argv[1][1] == '/')
             {
-                char path[strlen(argv[1]) - 1];
-                strncpy(path, &argv[1][2], strlen(argv[1]) - 1);
-                strcat(home, path);
+                char *home = getenv("HOME");
+                char *destination[strlen(argv[1]) - 1];
+                strncpy(destination, &argv[1][1], strlen(argv[1]) );
+                strcat(home, destination);
+                // destination = '\0';
+                argv[1] = home;
+                home = '\0';
             }
-            argv[1] = home;
+            else argv[1] = getenv("HOME");
         }
 
         // Change Directory
-        if (chdir(argv[1]) == 0) return;
+        if (chdir(argv[1]) == 0) {
+            argv[1] = '\0';
+            return;
+        }
         else 
         {
             printf("No such file or directory '%s'.\n", argv[1]);

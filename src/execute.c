@@ -6,6 +6,52 @@
 
 #include "execute.h"
 
+struct node
+{
+    char *command[64];
+    struct node *left;
+    struct node *right;
+};
+
+void buildTree(node *tree, char **argv, int *map)
+{
+    for (int i=63; i>=0; i--)
+    {
+        if (map[i] != 0)
+        {
+            /*
+                1:  >
+                2:  >>
+                3:  |
+                4:  <::
+                5:  ::>
+                6:  :
+            */
+            switch(map[i])
+            {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                default:
+                    break;
+            } 
+        }
+    }
+}
+
+void addNode(node *tree, char *command)
+{
+
+}
 
 // void *execute(void *cmd_void_ptr)
 // {
@@ -104,6 +150,7 @@ void execute(char **argv)
                     currentOutput++;
                 }
                 mrshPipe(input, output);
+                printf("After mrshPipe call");
             }
         }
         count++;
@@ -174,6 +221,9 @@ void mrshPipe(char **input, char **output)
     int fd[2];
     pid_t pid;
 
+    printf("input: %s %s\n", input[0], input[1]);
+    printf("output: %s %s\n", output[0], output[1]);
+
     // Create pipe, check for failure
     if (pipe(fd) < 0) 
     { 
@@ -196,11 +246,13 @@ void mrshPipe(char **input, char **output)
         //Close output side of pipe
         close(fd[1]); 
         //Run command, check for error
+        printf("Above child execvp\n");
         if (execvp(*input, input) < 0)
         {
             printf("*** ERROR: child exec failed: %s\n", *input);
             exit(1);
         }
+        printf("Below child execvp\n");
     }
     else //Parent
     {
@@ -212,11 +264,13 @@ void mrshPipe(char **input, char **output)
         //Close input side of pipe
         close(fd[0]);
         //Run command, check for error
+        printf("Above parent execvp\n");
         if (execvp(*output, output) < 0)
         {
             printf("*** ERROR: parent exec failed: %s\n", *output);
             exit(1);
         }
+        printf("Below parent execvp\n");
     }
     return;
 }

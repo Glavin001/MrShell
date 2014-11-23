@@ -3,4 +3,6 @@
 
 void execute(char **argv);
 
+void mrshPipe(char **input, char **output);
+
 #endif

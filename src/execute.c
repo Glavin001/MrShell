@@ -5,8 +5,8 @@
 #include <pthread.h> //
 #include <stdbool.h>
 
-#include "execute.h"
 #include "tree.h"
+#include "execute.h"
 
 void buildTree(node **tree, char **argv, int *map)
 {

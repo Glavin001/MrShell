@@ -3,10 +3,12 @@
 #include <unistd.h>  // getcwd
 #include <string.h>  // strcmp
 #include <pthread.h>
+#include <stdbool.h>
 
 #include <readline/readline.h> // readline
 #include <readline/history.h>  // add_history
 
+#include "tree.h"    // Execution tree
 #include "common.h"  // printWelcome
 #include "parse.h"   // parse
 #include "execute.h" // execute

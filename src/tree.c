@@ -20,6 +20,7 @@ void insertNode(node **tree, char *command, bool isOperator, bool isFirstCmd)
     {
         insertNode(&(*tree)->left, command, isOperator, isFirstCmd);
     }
+    // TODO Fix this, see execute.c
     else if (!isOperator && !isFirstCmd)
     {
         insertNode(&(*tree)->right, command, isOperator, isFirstCmd);

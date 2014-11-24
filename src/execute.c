@@ -47,6 +47,10 @@ void buildTree(node **tree, char **argv, int *map)
         }
     }
 
+    //TODO fix this so the commands are placed properly. Right now everything
+    //     but the first command goes right from the node. However they should
+    //     fill in the tree's right nodes starting deep left. Likely a combination
+    //     of here and in tree.c
     // Commands
     int count = 0;
     while (argv[count] != '\0')
@@ -63,6 +67,8 @@ void buildTree(node **tree, char **argv, int *map)
         count++;
     }
 }
+
+// Is below even needed anymore? From Glavin's initial work
 
 // void *execute(void *cmd_void_ptr)
 // {
@@ -81,7 +87,7 @@ void buildTree(node **tree, char **argv, int *map)
 
 void execute(char **argv)
 {
-    // Create map
+    // Create a map of operators from argv
     /*
         1:  >
         2:  >>
@@ -132,78 +138,35 @@ void execute(char **argv)
         count++;
     }
 
-    // Create Tree
-    node *root;
-    buildTree(&root, argv, map);
+    // Create an execution tree from map and argv
+    node *executionTree;
+    buildTree(&executionTree, argv, map);
+    
+    // Print tree for debugging
     printf("Printing the command tree\n");
     printf("Preorder\n");
-    printPreorder(root);
+    printPreorder(executionTree);
     printf("Inorder\n");
-    printInorder(root);
+    printInorder(executionTree);
     printf("Postorder\n");
-    printPostorder(root);
+    printPostorder(executionTree);
 
-
-    // Create run order
-    // count = 0;
-    // int lastToken = count;
-    // // int nextToken;
-    // char *input[64];
-    // int currentInput = 0;
-    // char *output[64];
-    // int currentOutput = 0;
-    // while (1)
-    // {
-    //     if (argv[count] == '\0' && argv[count+1] == '\0') break;
-    //     else
-    //     {
-    //         // Pipe
-    //         if (map[count] == 3)
-    //         {
-    //             //Get input from lastToken -> pipe
-    //             for (int i=lastToken; i<count; i++)
-    //             {
-    //                 input[currentInput] = argv[i];
-    //                 currentInput++;
-    //             }
-    //             //Get output from from pipe -> nextToken
-    //             for (int i=count+1; map[i]==0; i++)
-    //             {
-    //                 output[currentOutput] = argv[i];
-    //                 currentOutput++;
-    //             }
-    //             mrshPipe(input, output);
-    //             printf("After mrshPipe call");
-    //         }
-    //     }
-    //     count++;
-    // }
+    //TODO Run execution tree
     
+    // Delete the tree and return from execute call
     deleteTree(root);
     return;
 
-    
+
+    // What is commented below is a fully working basic shell implementation
+    // It will fork/run your commands, but not take into account pipes and 
+    // whatnot. Left in for reference & copy/pasting to suit future needs.
+    // If testing this out don't forget to comment the return above / move 
+    // it below this block   
 
     // // Check for built-in functions
     // if (strcmp(argv[0], "cd") == 0) 
     // {
-    //     // If using shortcut ~ for home, fix up path
-    //     // if (argv[1][0] == '~')
-    //     // {
-    //     //     // Get the current users home directory
-    //     //     char home[256];
-    //     //     snprintf(home, sizeof home, "%s%s%s", "/Users/", getenv("USER"), "/");
-
-    //     //     // If deeper than home, make path
-    //     //     if (argv[1][1] == '/')
-    //     //     {
-    //     //         char path[strlen(argv[1]) - 1];
-    //     //         strncpy(path, &argv[1][2], strlen(argv[1]) - 1);
-    //     //         strcat(home, path);
-    //     //     }
-    //     //     argv[1] = home;
-    //     // }
-
     //     // Change Directory
     //     if (chdir(argv[1]) == 0) return;
     //     else 
@@ -230,7 +193,7 @@ void execute(char **argv)
     // }
     // else // Parent process
     // {
-    //     // Wait for child
+    //     // Wait for child to complete
     //     int wc = wait(NULL);
     //     if (wc == -1)
     //     {
@@ -240,6 +203,10 @@ void execute(char **argv)
     // }
 }
 
+// This isn't working properly. I'm thinking it has something to
+// do with the file descriptors and stdin/out. Although during testing
+// the parent always ran first, couldn't figure out why
+// This started as a simple test for 1-1 piping
 void mrshPipe(char **input, char **output)
 {
     //Piping

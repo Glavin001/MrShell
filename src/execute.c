@@ -136,7 +136,12 @@ void execute(char **argv)
     node *root;
     buildTree(&root, argv, map);
     printf("Printing the command tree\n");
+    printf("Preorder\n");
     printPreorder(root);
+    printf("Inorder\n");
+    printInorder(root);
+    printf("Postorder\n");
+    printPostorder(root);
 
 
     // Create run order

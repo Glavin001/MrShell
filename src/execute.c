@@ -154,7 +154,7 @@ void execute(char **argv)
     //TODO Run execution tree
     
     // Delete the tree and return from execute call
-    deleteTree(root);
+    deleteTree(executionTree);
     return;
 
 

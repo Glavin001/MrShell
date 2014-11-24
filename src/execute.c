@@ -3,54 +3,65 @@
 #include <unistd.h>  // fork, wait, execvp, chdir, pid_t
 #include <string.h>  // strcmp, strncpy, strcat, strlen
 #include <pthread.h> //
+#include <stdbool.h>
 
 #include "execute.h"
+#include "tree.h"
 
-struct node
+void buildTree(node **tree, char **argv, int *map)
 {
-    char *command[64];
-    struct node *left;
-    struct node *right;
-};
-
-void buildTree(node *tree, char **argv, int *map)
-{
+    // Operators
     for (int i=63; i>=0; i--)
     {
         if (map[i] != 0)
         {
-            /*
-                1:  >
+            /*  1:  >
                 2:  >>
                 3:  |
                 4:  <::
                 5:  ::>
-                6:  :
-            */
+                6:  :    */
             switch(map[i])
             {
                 case 1:
+                    insertNode(tree, ">", true, false);
                     break;
                 case 2:
+                    insertNode(tree, ">>", true, false);
                     break;
                 case 3:
+                    insertNode(tree, "|", true, false);
                     break;
                 case 4:
+                    insertNode(tree, "<::", true, false);
                     break;
                 case 5:
+                    insertNode(tree, "::>", true, false);
                     break;
                 case 6:
+                    insertNode(tree, ":", true, false);
                     break;
                 default:
                     break;
             } 
         }
     }
-}
 
-void addNode(node *tree, char *command)
-{
-
+    // Commands
+    int count = 0;
+    while (argv[count] != '\0')
+    {
+        // printf("Build commands iteration: %d.  Map: %d.  argv: %s\n", count, map[count], argv[count]);
+        if (count == 0 && map[count] == 0)
+        {
+            insertNode(tree, argv[count], false, true);
+        }
+        else if (map[count] == 0)
+        {
+            insertNode(tree, argv[count], false, false);
+        }
+        count++;
+    }
 }
 
 // void *execute(void *cmd_void_ptr)
@@ -89,72 +100,81 @@ void execute(char **argv)
             if (strcmp(argv[count], ">") == 0) 
             {
                 map[count] = 1;
-                printf("> at argv[%d]\n", count);
+                // printf("> at argv[%d]\n", count);
             }
             else if (strcmp(argv[count], ">>") == 0) 
             {
                 map[count] = 2;
-                printf(">> at argv[%d]\n", count);
+                // printf(">> at argv[%d]\n", count);
             }
             else if (strcmp(argv[count], "|") == 0) 
             {
                 map[count] = 3;
-                printf(" | at argv[%d]\n", count);
+                // printf(" | at argv[%d]\n", count);
             }
             else if (strcmp(argv[count], "<::") == 0) 
             {
                 map[count] = 4;
-                printf(" <:: at argv[%d]\n", count);
+                // printf(" <:: at argv[%d]\n", count);
             }
             else if (strcmp(argv[count], "::>") == 0) 
             {
                 map[count] = 5;
-                printf(" ::> at argv[%d]\n", count);
+                // printf(" ::> at argv[%d]\n", count);
             }
             else if (strcmp(argv[count], ":") == 0) 
             {
                 map[count] = 6;
-                printf(" : at argv[%d]\n", count);
+                // printf(" : at argv[%d]\n", count);
             }
             // else if (strcmp(argv[count], "") == 0) {}
         }
         count++;
     }
 
+    // Create Tree
+    node *root;
+    buildTree(&root, argv, map);
+    printf("Printing the command tree\n");
+    printPreorder(root);
+
+
     // Create run order
-    count = 0;
-    int lastToken = count;
-    // int nextToken;
-    char *input[64];
-    int currentInput = 0;
-    char *output[64];
-    int currentOutput = 0;
-    while (1)
-    {
-        if (argv[count] == '\0' && argv[count+1] == '\0') break;
-        else
-        {
-            // Pipe
-            if (map[count] == 3)
-            {
-                //Get input from lastToken -> pipe
-                for (int i=lastToken; i<count; i++)
-                {
-                    input[currentInput] = argv[i];
-                    currentInput++;
-                }
-                //Get output from from pipe -> nextToken
-                for (int i=count+1; map[i]==0; i++)
-                {
-                    output[currentOutput] = argv[i];
-                    currentOutput++;
-                }
-                mrshPipe(input, output);
-                printf("After mrshPipe call");
-            }
-        }
-        count++;
-    }
+    // count = 0;
+    // int lastToken = count;
+    // // int nextToken;
+    // char *input[64];
+    // int currentInput = 0;
+    // char *output[64];
+    // int currentOutput = 0;
+    // while (1)
+    // {
+    //     if (argv[count] == '\0' && argv[count+1] == '\0') break;
+    //     else
+    //     {
+    //         // Pipe
+    //         if (map[count] == 3)
+    //         {
+    //             //Get input from lastToken -> pipe
+    //             for (int i=lastToken; i<count; i++)
+    //             {
+    //                 input[currentInput] = argv[i];
+    //                 currentInput++;
+    //             }
+    //             //Get output from from pipe -> nextToken
+    //             for (int i=count+1; map[i]==0; i++)
+    //             {
+    //                 output[currentOutput] = argv[i];
+    //                 currentOutput++;
+    //             }
+    //             mrshPipe(input, output);
+    //             printf("After mrshPipe call");
+    //         }
+    //     }
+    //     count++;
+    // }
+    
+    deleteTree(root);
     return;
 
     

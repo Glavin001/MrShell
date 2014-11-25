@@ -115,6 +115,13 @@ void execute(char **argv)
     buildTree(&executionTree, argv, map);
 
     //TODO Run execution tree
+
+    char *input[2];
+    char *output[1];
+    input[0] = "cat";
+    input[1] = "README.md";
+    output[0] = "wc";
+    mrshPipe(input, output);
     
     // Delete the tree and return from execute call
     deleteTree(executionTree);
@@ -176,8 +183,8 @@ void mrshPipe(char **input, char **output)
     int fd[2];
     pid_t pid;
 
-    printf("input: %s %s\n", input[0], input[1]);
-    printf("output: %s %s\n", output[0], output[1]);
+    printf("input: %s\n", *input);
+    printf("output: %s\n", *output);
 
     // Create pipe, check for failure
     if (pipe(fd) < 0) 
@@ -194,38 +201,40 @@ void mrshPipe(char **input, char **output)
     }
     else if (pid == 0) //Child
     {
+        // printf("top of child\n");
         //Close input side of pipe
         close(fd[0]);
-        //Make 1 same as output side of pipe
+        //Make the output of the child process be stdout in pipe
         dup2(fd[1], 1);
         //Close output side of pipe
         close(fd[1]); 
         //Run command, check for error
-        printf("Above child execvp\n");
+        fprintf(stderr, "Above child execvp\n");
         if (execvp(*input, input) < 0)
         {
-            printf("*** ERROR: child exec failed: %s\n", *input);
+            fprintf(stderr, "*** ERROR: child exec failed: %s\n", *input);
             exit(1);
         }
-        printf("Below child execvp\n");
+        // printf("Below child execvp\n");
     }
     else //Parent
     {
+        // printf("above wait\n");
         int wc = wait(NULL);
         //Close output side of pipe
         close(fd[1]);
-        //Make 0 same as input side of pipe
+        //Make the input of parent process be stdin in pipe
         dup2(fd[0], 0);
         //Close input side of pipe
         close(fd[0]);
         //Run command, check for error
-        printf("Above parent execvp\n");
+        // printf("Above parent execvp\n");
         if (execvp(*output, output) < 0)
         {
-            printf("*** ERROR: parent exec failed: %s\n", *output);
+            fprintf(stderr, "*** ERROR: parent exec failed: %s\n", *output);
             exit(1);
         }
-        printf("Below parent execvp\n");
+        fprintf(stderr, "Below parent execvp\n");
     }
     return;
 }

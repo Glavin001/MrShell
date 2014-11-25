@@ -10,111 +10,64 @@
 
 void buildTree(node **tree, char **argv, int *map)
 {
-    // Operators
+    // Build Operators Map
+
+    // Iterate thru all args in argv backwards
     for (int i=63; i>=0; i--)
     {
+        // Check if arg is an operator
         if (map[i] != 0)
         {
-            /*  1:  >
-                2:  >>
-                3:  |
-                4:  <::
-                5:  ::>
-                6:  :    */
+            // Is an Operator
+            //  1:  >    2:  >>    3:  |    4:  <::    5:  ::>    6:  :  
             char **command = malloc(2 * sizeof(char*));
             command[0] = argv[i];
             command[1] = NULL;
             insertNode(tree, command, true, false);
-            /* No longer necessary???
-            switch(map[i])
-            {
-                case 1:
-                    insertNode(tree, ">", true, false);
-                    break;
-                case 2:
-                    insertNode(tree, ">>", true, false);
-                    break;
-                case 3:
-                    insertNode(tree, "|", true, false);
-                    break;
-                case 4:
-                    insertNode(tree, "<::", true, false);
-                    break;
-                case 5:
-                    insertNode(tree, "::>", true, false);
-                    break;
-                case 6:
-                    insertNode(tree, ":", true, false);
-                    break;
-                default:
-                    break;
-            } */
         }
     }
 
-    //TODO fix this so the commands are placed properly. Right now everything
-    //     but the first command goes right from the node. However they should
-    //     fill in the tree's right nodes starting deep left. Likely a combination
-    //     of here and in tree.c
     // Commands
     int count = 0;
     while (argv[count] != '\0')
     {
-        // printf("Build commands iteration: %d.  Map: %d.  argv: %s\n", count, map[count], argv[count]);
+        bool isFirstCmd = (count == 0) ? true : false;
+        
+        // if an operator skip this iteration
         if (map[count] != 0)
         {
             count++;
             continue;
         }
-        //if (map[count] == 0)
-        //{
+
+        // Count how many 'flags' are in this command
         int length = 0;
         while (map[count] == 0)
         {
             length++;
             count++;
         }
+        // Allocate space for the command
         char **command = malloc ( (length + 1) * sizeof(char *));
+
+        // Add each command/flag from argv to command
         for (int i = 0; i < length; i++)
             command[i] = argv[count - length + i];
+        // Null terminate the command
         command[length] = NULL;
-        if (count == length)
+
+        // If first, insert left, else insert acording to algorithm in tree
+        if (isFirstCmd)
             insertNode(tree, command, false, true);
         else
             insertNode(tree, command, false, false);  
-
-        //}
     }
 }
-
-// Is below even needed anymore? From Glavin's initial work
-
-// void *execute(void *cmd_void_ptr)
-// {
-//     // struct commandArgs *cmd = (struct commandArgs *)cmd_void_ptr;
-//     // char **argv = cmd->argv;
-//     char **argv = (char **) cmd_void_ptr;
-//     printf("Command: %s\n", argv[0]);
-//     if (execvp(*argv, argv) < 0) {     
-//         /* execute the command  */
-//         printf("*** ERROR: exec failed\n");
-//         exit(1);
-//     }
-//     return 0;
-// }
-
 
 void execute(char **argv)
 {
     // Create a map of operators from argv
-    /*
-        1:  >
-        2:  >>
-        3:  |
-        4:  <::
-        5:  ::>
-        6:  :
-    */
+    //  1:  >    2:  >>    3:  |    4:  <::    5:  ::>    6:  :  
     int map[64] = {0};
     int count = 0;
     while(1) 
@@ -163,11 +116,11 @@ void execute(char **argv)
     
     // Print tree for debugging
     printf("Printing the command tree\n");
-    printf("Preorder\n");
+    printf("\nPreorder\n");
     printPreorder(executionTree);
-    printf("Inorder\n");
+    printf("\nInorder\n");
     printInorder(executionTree);
-    printf("Postorder\n");
+    printf("\nPostorder\n");
     printPostorder(executionTree);
 
     //TODO Run execution tree

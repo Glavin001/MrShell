@@ -12,19 +12,30 @@ void insertNode(node **tree, char **command, bool isOperator, bool isFirstCmd)
         temp = (node *)malloc(sizeof(node));
         temp->left = temp->right = NULL;
         temp->command = command;
+        if (isOperator) temp->isOp = 1;
+        else temp->isOp = 0;
         *tree = temp;
         return;
     }
-
+    // If an operator or the first command
     if(isOperator || (!isOperator && isFirstCmd))
     {
         insertNode(&(*tree)->left, command, isOperator, isFirstCmd);
     }
-    // TODO Fix this, see execute.c
     else if (!isOperator && !isFirstCmd)
     {
-        insertNode(&(*tree)->right, command, isOperator, isFirstCmd);
+        traverseDown(tree, command);
     }
+}
+
+void traverseDown(node **tree, char **command)
+{
+    // If the tree's left node is an operator and the tree's left node's right child is null
+    if ((**tree).left->isOp == 1 && (**tree).left->right == NULL)
+        traverseDown(&(*tree)->left, command);
+    // Else insert to the right child
+    else
+        insertNode(&(*tree)->right, command, false, false);   
 }
 
 void printPreorder(node *tree)

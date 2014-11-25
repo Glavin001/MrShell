@@ -56,15 +56,27 @@ void buildTree(node **tree, char **argv, int *map)
     while (argv[count] != '\0')
     {
         // printf("Build commands iteration: %d.  Map: %d.  argv: %s\n", count, map[count], argv[count]);
-        if (count == 0 && map[count] == 0)
+        if (map[count] != 0)
         {
+            count++;
+            continue;
+        }
+        //if (map[count] == 0)
+        //{
+        int length = 0;
+        while (map[count] == 0)
+        {
+            length++;
+            count++;
+        }
+        char **command = malloc (length * sizeof(char *));
+        command = argv[count-length];
+        if (count == length)
             insertNode(tree, argv[count], false, true);
-        }
-        else if (map[count] == 0)
-        {
-            insertNode(tree, argv[count], false, false);
-        }
-        count++;
+        else
+            insertNode(tree, argv[count], false, false);  
+
+        //}
     }
 }
 

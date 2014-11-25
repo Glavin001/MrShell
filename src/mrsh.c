@@ -14,24 +14,12 @@
 #include "execute.h" // execute
 #include "chalk.h"   // color constants
 
-// Is this needed? From Glavin's initial work
-// === Structs ===
-// struct commandArgs {
-//     int argc;
-//     //const char **argv;
-//     char *argv[64];
-// };
-
 int main (void)
 {
     printWelcome();
 
     char *line;      // Stores the user's current entered line
     char *argv[64];  // Stores the current line split into args  
-    
-    // Is this needed? From Glavin's initial work
-    // struct commandArgs cmd;
-    // pthread_t run_thread;
     
     char cwd[1024];  // Stores the current workind directory
     char promptMessage[1024]; // Stores the entire prompt line

@@ -11,7 +11,6 @@
 void buildTree(node **tree, char **argv, int *map)
 {
     // Build Operators Map
-
     // Iterate thru all args in argv backwards
     for (int i=63; i>=0; i--)
     {
@@ -116,6 +115,7 @@ void execute(char **argv)
 
     //TODO Run execution tree
 
+    // Pipe testing
     char *input[2];
     char *output[1];
     input[0] = "cat";
@@ -201,7 +201,6 @@ void mrshPipe(char **input, char **output)
     }
     else if (pid == 0) //Child
     {
-        // printf("top of child\n");
         //Close input side of pipe
         close(fd[0]);
         //Make the output of the child process be stdout in pipe

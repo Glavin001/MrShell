@@ -116,11 +116,13 @@ void execute(char **argv)
     //TODO Run execution tree
 
     // Pipe testing
-    char *input[2];
-    char *output[1];
+    char *input[3];
+    char *output[2];
     input[0] = "cat";
     input[1] = "README.md";
+    input[2] = '\0';
     output[0] = "wc";
+    output[1] = '\0';
     mrshPipe(input, output);
     
     // Delete the tree and return from execute call
@@ -180,11 +182,11 @@ void execute(char **argv)
 void mrshPipe(char **input, char **output)
 {
     //Piping
-    int fd[2];
+    int fd[2]; // [read, write]
     pid_t pid;
 
-    printf("input: %s\n", *input);
-    printf("output: %s\n", *output);
+    fprintf(stdout, "child input: %s %s\n", *input, *(input+1));
+    fprintf(stdout, "parent input (output): %s\n", *output);
 
     // Create pipe, check for failure
     if (pipe(fd) < 0) 
@@ -201,12 +203,11 @@ void mrshPipe(char **input, char **output)
     }
     else if (pid == 0) //Child
     {
-        //Close input side of pipe
-        close(fd[0]);
-        //Make the output of the child process be stdout in pipe
-        dup2(fd[1], 1);
-        //Close output side of pipe
-        close(fd[1]); 
+        
+        close(fd[0]);    /* close read end of pipe               */
+        dup2(fd[1],1);   /* make 1 same as write-to end of pipe  */
+        close(fd[1]);    /* close excess fildes                  */
+
         //Run command, check for error
         fprintf(stderr, "Above child execvp\n");
         if (execvp(*input, input) < 0)
@@ -218,16 +219,15 @@ void mrshPipe(char **input, char **output)
     }
     else //Parent
     {
-        // printf("above wait\n");
+        printf("above wait\n");
         int wc = wait(NULL);
-        //Close output side of pipe
-        close(fd[1]);
-        //Make the input of parent process be stdin in pipe
-        dup2(fd[0], 0);
-        //Close input side of pipe
-        close(fd[0]);
+
+        close(fd[1]);    /* close write end of pipe              */
+        dup2(fd[0],0);   /* make 0 same as read-from end of pipe */
+        close(fd[0]);    /* close excess fildes                  */
+
         //Run command, check for error
-        // printf("Above parent execvp\n");
+        printf("Above parent execvp\n");
         if (execvp(*output, output) < 0)
         {
             fprintf(stderr, "*** ERROR: parent exec failed: %s\n", *output);

@@ -2,7 +2,7 @@
 #define TREE_H_INCLUDED
 
 struct tree_node {
-    char *command;
+	char **command;
     struct tree_node *left;
     struct tree_node *right;
 };

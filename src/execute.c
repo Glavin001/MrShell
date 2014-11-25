@@ -121,7 +121,19 @@ void execute(char **argv)
     input[0] = "cat";
     input[1] = "README.md";
     output[0] = "wc";
-    mrshPipe(input, output);
+    if ((pid = fork()) < 0) 
+    { 
+        perror("Fork Failed"); 
+        exit(1); 
+    }
+    else if (pid == 0) //Child
+    {
+        mrshPipe(input, output);
+    }
+    else //Parent
+    {
+        int wc = wait(NULL);
+    }
     
     // Delete the tree and return from execute call
     deleteTree(executionTree);

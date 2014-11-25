@@ -123,7 +123,21 @@ void execute(char **argv)
     input[2] = '\0';
     output[0] = "wc";
     output[1] = '\0';
-    mrshPipe(input, output);
+
+    pid_t pid;
+    if ((pid = fork()) < 0) 
+    { 
+        perror("Fork Failed"); 
+        exit(1); 
+    }
+    else if (pid == 0) //Child
+    {
+        mrshPipe(input, output);
+    }
+    else //Parent
+    {
+        int wc = wait(NULL);
+    }
     
     // Delete the tree and return from execute call
     deleteTree(executionTree);

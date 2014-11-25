@@ -33,3 +33,10 @@ build/
 *.i*86
 *.x86_64
 *.hex
+
+# Swap files
+*.swp
+*.swo
+
+# DS Store
+.DS_Store

@@ -72,9 +72,9 @@ void buildTree(node **tree, char **argv, int *map)
         char **command = malloc (length * sizeof(char *));
         command = argv[count-length];
         if (count == length)
-            insertNode(tree, argv[count], false, true);
+            insertNode(tree, command, false, true);
         else
-            insertNode(tree, argv[count], false, false);  
+            insertNode(tree, command, false, false);  
 
         //}
     }

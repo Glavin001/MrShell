@@ -21,6 +21,8 @@ void buildTree(node **tree, char **argv, int *map)
                 4:  <::
                 5:  ::>
                 6:  :    */
+            insertNode(tree, &argv[i], true, false);
+            /* No longer necessary???
             switch(map[i])
             {
                 case 1:
@@ -43,7 +45,7 @@ void buildTree(node **tree, char **argv, int *map)
                     break;
                 default:
                     break;
-            } 
+            } */
         }
     }
 
@@ -70,7 +72,7 @@ void buildTree(node **tree, char **argv, int *map)
             count++;
         }
         char **command = malloc (length * sizeof(char *));
-        command = argv[count-length];
+        command = &argv[count-length];
         if (count == length)
             insertNode(tree, command, false, true);
         else

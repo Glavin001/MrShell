@@ -8,7 +8,7 @@ struct tree_node {
 };
 typedef struct tree_node node;
 
-void insertNode(node **tree, char *command, bool isOperator, bool isFirstCmd);
+void insertNode(node **tree, char **command, bool isOperator, bool isFirstCmd);
 void printPreorder(node *tree);
 void printInorder(node *tree);
 void printPostorder(node *tree);

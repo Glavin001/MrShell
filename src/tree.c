@@ -4,7 +4,7 @@
 
 #include "tree.h"
 
-void insertNode(node **tree, char *command, bool isOperator, bool isFirstCmd)
+void insertNode(node **tree, char **command, bool isOperator, bool isFirstCmd)
 {
 	node *temp = NULL;
     if(!(*tree))
@@ -31,7 +31,13 @@ void printPreorder(node *tree)
 {
 	if (tree)
     {
-        printf("%s\n",tree->command);
+        int i = 0;
+        while (tree->command[i])
+        {
+            printf("%s ",tree->command[i]);
+            i++;
+        }
+        printf("\n");
         printPreorder(tree->left);
         printPreorder(tree->right);
     }
@@ -42,7 +48,13 @@ void printInorder(node *tree)
 	if (tree)
     {
         printInorder(tree->left);
-        printf("%s\n",tree->command);
+        int i = 0;
+        while (tree->command[i])
+        {
+            printf("%s ",tree->command[i]);
+            i++;
+        }
+        printf("\n");
         printInorder(tree->right);
     }
 }
@@ -53,7 +65,13 @@ void printPostorder(node *tree)
     {
         printPostorder(tree->left);
         printPostorder(tree->right);
-        printf("%s\n",tree->command);
+        int i = 0;
+        while (tree->command[i])
+        {
+            printf("%s ",tree->command[i]);
+            i++;
+        }
+        printf("\n");
     }
 }
 
@@ -63,6 +81,8 @@ void deleteTree(node *tree)
     {
         deleteTree(tree->left);
         deleteTree(tree->right);
+        if (tree->command)
+            free(tree->command);
         free(tree);
     }
 }

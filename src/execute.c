@@ -121,6 +121,7 @@ void execute(char **argv)
     input[0] = "cat";
     input[1] = "README.md";
     output[0] = "wc";
+    pid_t pid;
     if ((pid = fork()) < 0) 
     { 
         perror("Fork Failed"); 

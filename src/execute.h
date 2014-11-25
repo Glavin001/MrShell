@@ -3,6 +3,7 @@
 
 void buildTree(node **tree, char **argv, int *map);
 void execute(char **argv);
-void mrshPipe(char **input, char **output);
+void pipeCmds(char **input, char **output, int *fd);
+void execTree(node *tree, int *fd);
 
 #endif

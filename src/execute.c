@@ -116,28 +116,27 @@ void execute(char **argv)
     //TODO Run execution tree
 
     // Pipe testing
-    char *input[3];
-    char *output[2];
-    input[0] = "cat";
-    input[1] = "README.md";
-    input[2] = '\0';
-    output[0] = "wc";
-    output[1] = '\0';
 
-    pid_t pid;
-    if ((pid = fork()) < 0) 
+    // char *input[3];
+    // char *output[2];
+    // input[0] = "cat";
+    // input[1] = "README.md";
+    // input[2] = '\0';
+    // output[0] = "wc";
+    // output[1] = '\0';    
+
+    int fd[2]; // [read, write]
+
+    // Create pipe, check for failure
+    if (pipe(fd) < 0) 
     { 
-        perror("Fork Failed"); 
+        perror("Pipe Failed"); 
         exit(1); 
     }
-    else if (pid == 0) //Child
-    {
-        mrshPipe(input, output);
-    }
-    else //Parent
-    {
-        int wc = wait(NULL);
-    }
+
+    // printInorder(executionTree);
+    // printPostorder(executionTree);
+    execTree(executionTree, fd);
     
     // Delete the tree and return from execute call
     deleteTree(executionTree);
@@ -189,25 +188,75 @@ void execute(char **argv)
     // }
 }
 
+
+void execTree(node *tree, int *fd)
+{
+    // Check for tree
+    if (tree)
+    {
+        // Has tree
+
+        /* Base case
+        
+        */
+        if (!tree->left->isOp && !tree->right->isOp) 
+        {
+            printf("PIPING! %s | %s", tree->left->command, tree->right->command);
+            pipeCmds(tree->left->command, tree->right->command, fd);
+        }
+
+        // pid_t pid;
+        // if ((pid = fork()) < 0) 
+        // { 
+        //     perror("Fork Failed"); 
+        //     exit(1); 
+        // }
+        // else if (pid == 0) //Child
+        // {
+        //     mrshPipe(input, output);
+        // }
+        // else //Parent
+        // {
+        //     int wc = wait(NULL);
+        // }
+        // 
+        execTree(tree->left, fd);
+        int i = 0;
+        if (tree->isOp) {
+            printf("Is Operator");
+        } else {
+            printf("is NOT Operator");
+        }
+        while (tree->command[i])
+        {
+            printf("%s ",tree->command[i]);
+            i++;
+        }
+        printf("\n");
+        execTree(tree->right, fd);
+    }
+}
+
+
 // This isn't working properly. I'm thinking it has something to
 // do with the file descriptors and stdin/out. Although during testing
 // the parent always ran first, couldn't figure out why
 // This started as a simple test for 1-1 piping
-void mrshPipe(char **input, char **output)
+void pipeCmds(char **input, char **output, int *fd)
 {
     //Piping
-    int fd[2]; // [read, write]
+    // int fd[2]; // [read, write]
     pid_t pid;
 
     fprintf(stdout, "child input: %s %s\n", *input, *(input+1));
     fprintf(stdout, "parent input (output): %s\n", *output);
 
     // Create pipe, check for failure
-    if (pipe(fd) < 0) 
-    { 
-        perror("Pipe Failed"); 
-        exit(1); 
-    }
+    // if (pipe(fd) < 0) 
+    // { 
+    //     perror("Pipe Failed"); 
+    //     exit(1); 
+    // }
     
     // Fork process, check for failure
     if ((pid = fork()) < 0) 

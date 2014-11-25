@@ -220,7 +220,6 @@ void mrshPipe(char **input, char **output)
         
         close(fd[0]);    /* close read end of pipe               */
         dup2(fd[1],1);   /* make 1 same as write-to end of pipe  */
-        close(fd[1]);    /* close excess fildes                  */
 
         //Run command, check for error
         fprintf(stderr, "Above child execvp\n");
@@ -238,7 +237,6 @@ void mrshPipe(char **input, char **output)
 
         close(fd[1]);    /* close write end of pipe              */
         dup2(fd[0],0);   /* make 0 same as read-from end of pipe */
-        close(fd[0]);    /* close excess fildes                  */
 
         //Run command, check for error
         printf("Above parent execvp\n");

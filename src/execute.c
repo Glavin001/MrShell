@@ -139,7 +139,7 @@ void execute(char **argv)
     }
 
     // Create an execution tree from map and argv
-    node *executionTree;
+    node *executionTree = NULL;
     buildTree(&executionTree, argv, map);
     
     // Print tree for debugging

@@ -113,15 +113,6 @@ void execute(char **argv)
     // Create an execution tree from map and argv
     node *executionTree = NULL;
     buildTree(&executionTree, argv, map);
-    
-    // Print tree for debugging
-    printf("Printing the command tree\n");
-    printf("\nPreorder\n");
-    printPreorder(executionTree);
-    printf("\nInorder\n");
-    printInorder(executionTree);
-    printf("\nPostorder\n");
-    printPostorder(executionTree);
 
     //TODO Run execution tree
     

@@ -21,7 +21,10 @@ void buildTree(node **tree, char **argv, int *map)
                 4:  <::
                 5:  ::>
                 6:  :    */
-            insertNode(tree, &argv[i], true, false);
+            char **command = malloc(2 * sizeof(char*));
+            command[0] = argv[i];
+            command[1] = NULL;
+            insertNode(tree, command, true, false);
             /* No longer necessary???
             switch(map[i])
             {
@@ -71,8 +74,10 @@ void buildTree(node **tree, char **argv, int *map)
             length++;
             count++;
         }
-        char **command = malloc (length * sizeof(char *));
-        command = &argv[count-length];
+        char **command = malloc ( (length + 1) * sizeof(char *));
+        for (int i = 0; i < length; i++)
+            command[i] = argv[count - length + i];
+        command[length] = NULL;
         if (count == length)
             insertNode(tree, command, false, true);
         else

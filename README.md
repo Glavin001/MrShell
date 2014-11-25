@@ -1,5 +1,6 @@
 MrShell [![Build Status](https://travis-ci.org/Glavin001/MrShell.svg?branch=master)](https://travis-ci.org/Glavin001/MrShell)
 =======
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Glavin001/MrShell?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 > Map-Reduce inspired Shell.
 

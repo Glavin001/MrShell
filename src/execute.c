@@ -125,115 +125,122 @@ void execute(char **argv)
     // output[0] = "wc";
     // output[1] = '\0';    
 
-    int fd[2]; // [read, write]
+    int fdIn[2]; // [read, write]
+    int fdOut[2]; // [read, write]
 
     // Create pipe, check for failure
-    if (pipe(fd) < 0) 
+    if (pipe(fdIn) < 0) 
     { 
-        perror("Pipe Failed"); 
+        perror("Pipe fdIn Failed"); 
         exit(1); 
     }
+    // Create pipe, check for failure
+    if (pipe(fdOut) < 0) 
+    { 
+        perror("Pipe fdOut Failed"); 
+        exit(1);
+    }
+
+    // close(fdOut[0]);    /* close read end of pipe               */
+    // dup2(fdOut[1],1);   /* make 1 same as write-to end of pipe  */
 
     // printInorder(executionTree);
     // printPostorder(executionTree);
-    execTree(executionTree, fd);
+    execTree(executionTree, fdIn, fdOut);
+
+    /* Parent process closes up output side of pipe */
+    close(fdOut[1]);
+    /* Read in a string from the pipe */
+    char readbuffer[1024];
+    int nbytes = read(fdOut[0], readbuffer, sizeof(readbuffer));
+    printf("Received string: %s\n", readbuffer);
     
     // Delete the tree and return from execute call
     deleteTree(executionTree);
     return;
-
-
-    // What is commented below is a fully working basic shell implementation
-    // It will fork/run your commands, but not take into account pipes and 
-    // whatnot. Left in for reference & copy/pasting to suit future needs.
-    // If testing this out don't forget to comment the return above / move 
-    // it below this block   
-
-    // // Check for built-in functions
-    // if (strcmp(argv[0], "cd") == 0) 
-    // {
-    //     // Change Directory
-    //     if (chdir(argv[1]) == 0) return;
-    //     else 
-    //     {
-    //         printf("No such file or directory '%s'.\n", argv[1]);
-    //         return;
-    //     }
-    // }
-
-    // pid_t pid;
-    // // Fork, if error exit
-    // if ((pid = fork()) < 0) 
-    // {   
-    //     printf("*** ERROR: forking child process failed.\n");
-    //     exit(1);
-    // }
-    // else if (pid == 0) // Child process, execute command
-    // {
-    //     if (execvp(*argv, argv) < 0) 
-    //     {
-    //         printf("*** ERROR: exec failed.\n");
-    //         exit(1);
-    //     }
-    // }
-    // else // Parent process
-    // {
-    //     // Wait for child to complete
-    //     int wc = wait(NULL);
-    //     if (wc == -1)
-    //     {
-    //         printf("*** Error: wait failed.\n");
-    //         exit(1);
-    //     }
-    // }
 }
 
 
-void execTree(node *tree, int *fd)
+void execTree(node *tree, int *fdIn, int *fdOut)
 {
     // Check for tree
     if (tree)
     {
         // Has tree
-
-        /* Base case
-        
-        */
-        if (!tree->left->isOp && !tree->right->isOp) 
+        if (!tree->isOp)
         {
-            printf("PIPING! %s | %s", tree->left->command, tree->right->command);
-            pipeCmds(tree->left->command, tree->right->command, fd);
-        }
+            printf("Is NOT Operator: ");
+            int i=0;
+            while (tree->command[i])
+            {
+                printf("%s ",tree->command[i]);
+                i++;
+            }
+            printf("\n");
 
-        // pid_t pid;
-        // if ((pid = fork()) < 0) 
-        // { 
-        //     perror("Fork Failed"); 
-        //     exit(1); 
-        // }
-        // else if (pid == 0) //Child
-        // {
-        //     mrshPipe(input, output);
-        // }
-        // else //Parent
-        // {
-        //     int wc = wait(NULL);
-        // }
-        // 
-        execTree(tree->left, fd);
-        int i = 0;
-        if (tree->isOp) {
-            printf("Is Operator");
-        } else {
-            printf("is NOT Operator");
-        }
-        while (tree->command[i])
+            char **cmd = tree->command;
+            // What is commented below is a fully working basic shell implementation
+            // It will fork/run your commands, but not take into account pipes and 
+            // whatnot. Left in for reference & copy/pasting to suit future needs.
+            // If testing this out don't forget to comment the return above / move 
+            // it below this block   
+
+            // Check for built-in functions
+            if (strcmp(cmd[0], "cd") == 0) 
+            {
+                // Change Directory
+                if (chdir(cmd[1]) == 0) {
+                    return;
+                }
+                else 
+                {
+                    printf("No such file or directory '%s'.\n", cmd[1]);
+                    return;
+                }
+            }
+
+            execCmd(tree->command, fdIn, fdOut);
+
+            return;
+        } else
         {
-            printf("%s ",tree->command[i]);
-            i++;
+            // Is Operator
+            printf("Is Operator: ");
+            int i=0;
+            while (tree->command[i])
+            {
+                printf("%s ",tree->command[i]);
+                i++;
+            }
+            printf("\n");
+            // Which Operator?
+            char *op = tree->command[0];
+
+            // Piping
+            if (strcmp(op, "|") == 0) 
+            {
+                printf("Piping operator\n");
+
+                if (!tree->left->isOp && !tree->right->isOp) 
+                {
+                    printf("PIPING! %s | %s\n", tree->left->command, tree->right->command);
+                    pipeCmds(tree->left->command, tree->right->command, fdIn, fdOut);
+                }
+
+            }
+            else
+            {
+                fprintf(stderr, "Unsupported Operator: %s\n", op);
+                return;
+            }
+
+            // execTree(tree->left, fd);
+            // execTree(tree->right, fd);
         }
-        printf("\n");
-        execTree(tree->right, fd);
+    }
+    else
+    {
+        fprintf(stderr, "Tree is empty");
     }
 }
 
@@ -242,61 +249,84 @@ void execTree(node *tree, int *fd)
 // do with the file descriptors and stdin/out. Although during testing
 // the parent always ran first, couldn't figure out why
 // This started as a simple test for 1-1 piping
-void pipeCmds(char **input, char **output, int *fd)
+void pipeCmds(char **inputCmd, char **outputCmd, int *fdIn, int *fdOut)
 {
-    //Piping
+    // Piping
     // int fd[2]; // [read, write]
     pid_t pid;
 
-    fprintf(stdout, "child input: %s %s\n", *input, *(input+1));
-    fprintf(stdout, "parent input (output): %s\n", *output);
+    fprintf(stdout, "child input: %s %s\n", *inputCmd, *(inputCmd+1));
+    fprintf(stdout, "parent input (output): %s\n", *outputCmd);
 
-    // Create pipe, check for failure
-    // if (pipe(fd) < 0) 
-    // { 
-    //     perror("Pipe Failed"); 
-    //     exit(1); 
-    // }
-    
-    // Fork process, check for failure
     if ((pid = fork()) < 0) 
     { 
         perror("Fork Failed"); 
         exit(1); 
     }
+    else if (pid == 0) // Child
+    {
+        close(fdIn[0]);    /* close read end of pipe               */
+
+        // Create pipe from inputCmd to outputCmd
+        int fdPipe[2]; // [read, write]
+        // Create pipe, check for failure
+        if (pipe(fdPipe) < 0) 
+        { 
+            perror("Pipe fdPipe Failed"); 
+            exit(1); 
+        }
+    
+        // Execute first
+        execCmd(inputCmd, fdIn, fdPipe);
+
+        // Pipe output to input of next command
+        close(fdPipe[1]);    /* close write end of pipe              */
+        // dup2(fdPipe[0], fdIn[1]);   /* make 0 same as read-from end of pipe */
+
+        // Run output / second command
+        execCmd(outputCmd, fdPipe, fdOut);
+        return;
+    }
+    else // Parent
+    {
+        int wc = wait(NULL);
+        return;
+    }
+
+}
+
+void execCmd(char **cmd, int *fdIn, int *fdOut)
+{
+    pid_t pid;
+    
+    // Fork process, check for failure
+    if ((pid = fork()) < 0) 
+    { 
+        perror("Fork Failed"); 
+        exit(1);
+    }
     else if (pid == 0) //Child
     {
         
-        close(fd[0]);    /* close read end of pipe               */
-        dup2(fd[1],1);   /* make 1 same as write-to end of pipe  */
-        close(fd[1]);    /* close excess fildes                  */
+        close(fdIn[1]);    /* close write end of pipe              */
+        dup2(fdIn[0],0);   /* make 0 same as read-from end of pipe */
+
+        close(fdOut[0]);    /* close read end of pipe               */
+        dup2(fdOut[1],1);   /* make 1 same as write-to end of pipe  */
 
         //Run command, check for error
-        fprintf(stderr, "Above child execvp\n");
-        if (execvp(*input, input) < 0)
+        if (execvp(*cmd, cmd) < 0)
         {
-            fprintf(stderr, "*** ERROR: child exec failed: %s\n", *input);
+            fprintf(stderr, "*** ERROR: child exec failed: %s\n", *cmd);
             exit(1);
         }
-        // printf("Below child execvp\n");
     }
     else //Parent
     {
-        printf("above wait\n");
+        close(fdOut[1]);    /* close write end of pipe              */
         int wc = wait(NULL);
-
-        close(fd[1]);    /* close write end of pipe              */
-        dup2(fd[0],0);   /* make 0 same as read-from end of pipe */
-        close(fd[0]);    /* close excess fildes                  */
-
-        //Run command, check for error
-        printf("Above parent execvp\n");
-        if (execvp(*output, output) < 0)
-        {
-            fprintf(stderr, "*** ERROR: parent exec failed: %s\n", *output);
-            exit(1);
-        }
-        fprintf(stderr, "Below parent execvp\n");
+        
+        fprintf(stdout, "execCmd done");
     }
     return;
 }

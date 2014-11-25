@@ -15,5 +15,6 @@ void printPreorder(node *tree);
 void printInorder(node *tree);
 void printPostorder(node *tree);
 void deleteTree(node *tree);
+void execTree (node *tree);
 
 #endif

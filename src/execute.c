@@ -132,7 +132,7 @@ void execute(char **argv)
     }
     else if (pid == 0) //Child
     {
-        mrshPipe(input, output);
+        execTree(executionTree);
     }
     else //Parent
     {
@@ -187,6 +187,11 @@ void execute(char **argv)
     //         exit(1);
     //     }
     // }
+}
+//Basic exec tree (Base Case)
+void execTree (node *tree)
+{
+    mrshPipe(tree->left->command, tree->right->command);
 }
 
 // This isn't working properly. I'm thinking it has something to

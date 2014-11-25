@@ -4,5 +4,6 @@
 void buildTree(node **tree, char **argv, int *map);
 void execute(char **argv);
 void mrshPipe(char **input, char **output);
+void execTree (node *tree);
 
 #endif

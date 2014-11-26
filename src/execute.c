@@ -211,6 +211,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
                 return;
             }
 
+            close(fdIn[1]);    /* close write end of pipe */
             execCmd(tree->command, fdIn, fdOut);
 
             return;

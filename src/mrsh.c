@@ -48,7 +48,7 @@ int main (void)
                 // No branch found
                 // Prompt User for input
                 sprintf(promptMessage, 
-                        "%s%s%s@%s%s%s%s", 
+                        "%s%s%s @ %s%s%s%s", 
                         KRED, user, KNORMAL, 
                         KBLUE, cwd, KNORMAL, 
                         "\n$ ");
@@ -58,10 +58,10 @@ int main (void)
                 // Git Branch found
                 // Prompt User for input
                 sprintf(promptMessage,
-                        "%s%s%s@%s%s%s%s(%s)%s%s", 
+                        "%s%s%s @ %s%s%s%s git(%s)%s%s", 
                         KRED, user, KNORMAL, 
-                        KBLUE, cwd, KNORMAL, 
-                        KMAGENTA, gitBranch, KNORMAL,
+                        KGREEN, cwd, KNORMAL, 
+                        KCYAN, gitBranch, KNORMAL,
                         "\n$ ");
             }
             free(gitBranch);

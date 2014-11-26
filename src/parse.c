@@ -94,11 +94,8 @@ void parse(char *origLine, char **argv)
     *av = (char *) '\0';
 
     // Process Args and replace if necessary
-
-    // printf("Before tildeFinder\n");
-    char* homeDir = getenv("HOME"); // Get the home directory at start of shell
+    char* homeDir = getenv("HOME"); // Get the home directory
     tildeFinder(argv, homeDir);
-    // printf("After tildeFinder\n");
 
     // TODO: Variables, such as $(ENVVAR)
 

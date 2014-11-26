@@ -12,7 +12,8 @@ void buildTree(node **tree, char **argv, int *map)
 {
     // Build Operators Map
     // Iterate thru all args in argv backwards
-    for (int i=63; i>=0; i--)
+    int i;
+    for (i=63; i>=0; i--)
     {
         // Check if arg is an operator
         if (map[i] != 0)
@@ -50,7 +51,8 @@ void buildTree(node **tree, char **argv, int *map)
         char **command = malloc ( (length + 1) * sizeof(char *));
 
         // Add each command/flag from argv to command
-        for (int i = 0; i < length; i++)
+        int i;
+        for (i = 0; i < length; i++)
             command[i] = argv[count - length + i];
         // Null terminate the command
         command[length] = NULL;

@@ -12,6 +12,7 @@ void tildeFinder(char **argv, char *home)
     	{
     		if (argv[count][i] == '~')
     		{
+    			printf("Tilde found at position %i in argv %i\n", i, count);
     			tildeReplacer(argv[count], home, i+1);
     		}
     	    // printf("%c\n", argv[count][i]);
@@ -25,11 +26,12 @@ void tildeReplacer(char *arg, char *home, int position)
 {
 	printf("home: %s\n", home);
 	printf("before newArg init\n");
-	char *newArg = "";
+	char newArg[128];
 	printf("before strcpy\n");
 	strcpy(newArg, home);
 	printf("before strcat\n");
 	strcat(newArg, &arg[position]);
+	printf("newarg: %s\n", newArg);
 	printf("before arg=newArg\n");
 	arg = newArg;
 	printf("%s", newArg);

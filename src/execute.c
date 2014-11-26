@@ -194,8 +194,14 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             // Check for built-in functions
             if (strcmp(cmd[0], "cd") == 0) 
             {
+                char *path = cmd[1];
+                // Check for null
+                if (path == NULL)
+                {
+                    path = getenv("HOME"); // Get the home directory
+                }
                 // Change Directory
-                if (chdir(cmd[1]) != 0)
+                if (chdir(path) != 0)
                 {
                     fprintf(stderr, "No such file or directory '%s'.\n", cmd[1]);
                 }

@@ -3,5 +3,6 @@
 
 void tildeFinder(char **argv, char *home);
 void tildeReplacer(char **argv, int count, char *home, int position);
+void homeReplacer(char *cwd);
 
 #endif

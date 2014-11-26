@@ -14,6 +14,7 @@
 #include "execute.h"   // execute
 #include "chalk.h"     // color constants
 #include "constants.h" // constants
+#include "tilde.h"     // homefinder
 
 int main (void)
 {
@@ -37,6 +38,9 @@ int main (void)
                 exit(1);
             }
 
+            // Check for home directory in cwd, replace with ~
+            homeReplacer(cwd);
+
             // Check for git repo & prompt for input
             char *gitBranch = (char *) malloc( GIT_BRANCH_LENGTH * sizeof(char *));
             if (getCurrentGitBranch(gitBranch) == 0) 
@@ -47,7 +51,7 @@ int main (void)
                         "%s%s%s@%s%s%s%s", 
                         KRED, user, KNORMAL, 
                         KBLUE, cwd, KNORMAL, 
-                        "$ ");
+                        "\n$ ");
             }
             else
             {
@@ -58,7 +62,7 @@ int main (void)
                         KRED, user, KNORMAL, 
                         KBLUE, cwd, KNORMAL, 
                         KMAGENTA, gitBranch, KNORMAL,
-                        "$ ");
+                        "\n$ ");
             }
             free(gitBranch);
 

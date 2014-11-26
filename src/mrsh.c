@@ -3,7 +3,7 @@
 #include <unistd.h>  // getcwd
 #include <string.h>  // strcmp
 #include <pthread.h>
-#include <stdbool.h>
+#include <stdbool.h> // bool
 
 #include <readline/readline.h> // readline
 #include <readline/history.h>  // add_history
@@ -13,6 +13,7 @@
 #include "parse.h"   // parse
 #include "execute.h" // execute
 #include "chalk.h"   // color constants
+#include "tilde.h"   // tilde detection/replacement
 
 int main (void)
 {
@@ -23,6 +24,8 @@ int main (void)
     
     char cwd[1024];  // Stores the current workind directory
     char promptMessage[1024]; // Stores the entire prompt line
+
+    char* homeDir = getenv("HOME"); // Get the home directory at start of shell
 
     // Main prompt loop
     while (1)
@@ -64,15 +67,15 @@ int main (void)
             // Parse the current line and store in argv
             //printf("Line: %s\n", line);
             parse(line, argv); /* parse the line */
+            printf("Before tildeFinder\n");
+            tildeFinder(argv, homeDir);
+            printf("After tildeFinder\n");
 
             // int i;
             // for (i=0; i<40; i++)
             // {
             //     fprintf(stderr, "Argv: %i %s\n", i, argv[i]);
             // }
-
-            //TODO Either in parse.c or a new file/header altogether(uses argv)
-            //     check for ~ and replace with home directory -> getenv("HOME");
 
             // If no parameters restart loop
             if (argv[0] == NULL)

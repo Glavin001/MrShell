@@ -63,17 +63,30 @@ void buildTree(node **tree, char **argv, int *map)
     }
 }
 
-void execute(char **argv)
+void buildMap(int *map, char **argv)
 {
     // Create a map of operators from argv
     //  1:  >    2:  >>    3:  |    4:  <::    5:  ::>    6:  :  
-    int map[64] = {0};
     int count = 0;
     while(1) 
     {
-        if (argv[count] == '\0' && argv[count+1] == '\0') break;
+        // fprintf(stderr, "buildMap %i\n", count);
+        if (argv[count] == '\0')
+        {
+            if (argv[count+1] == '\0') 
+            {
+                // fprintf(stderr, "break buildMap\n");
+                break;
+            }
+            // fprintf(stderr, "Continuing");
+
+            count++;
+            continue;
+        }
         else
         {
+            // fprintf(stderr, "mapping char: %s %s\n", argv[count], argv[count+1]);
+
             if (strcmp(argv[count], ">") == 0) 
             {
                 map[count] = 1;
@@ -108,23 +121,24 @@ void execute(char **argv)
         }
         count++;
     }
+}
+
+void execute(char **argv)
+{
+    // fprintf(stderr, "Execute!\n");
+
+    int map[64] = {0};
+    buildMap(map, argv);
+
+    // fprintf(stderr, "Map built\n");
 
     // Create an execution tree from map and argv
     node *executionTree = NULL;
     buildTree(&executionTree, argv, map);
 
-    //TODO Run execution tree
+    // printPostorder(executionTree);
 
-    // Pipe testing
-
-    // char *input[3];
-    // char *output[2];
-    // input[0] = "cat";
-    // input[1] = "README.md";
-    // input[2] = '\0';
-    // output[0] = "wc";
-    // output[1] = '\0';    
-
+    // Create pipe file descriptors
     int fdIn[2]; // [read, write]
     int fdOut[2]; // [read, write]
 
@@ -141,42 +155,41 @@ void execute(char **argv)
         exit(1);
     }
 
-    // close(fdOut[0]);    /* close read end of pipe               */
-    // dup2(fdOut[1],1);   /* make 1 same as write-to end of pipe  */
+    // The Output of this executionTree should go to stdout
+    close(fdOut[0]);    /* close read end of pipe               */
+    dup2(1, fdOut[1]);   /* make 1 same as write-to end of pipe  */
 
-    // printInorder(executionTree);
-    // printPostorder(executionTree);
+    // Execute the tree!
     execTree(executionTree, fdIn, fdOut);
-
-    /* Parent process closes up output side of pipe */
-    close(fdOut[1]);
-    /* Read in a string from the pipe */
-    char readbuffer[1024];
-    int nbytes = read(fdOut[0], readbuffer, sizeof(readbuffer));
-    printf("Received string: %s\n", readbuffer);
     
+    // fprintf(stderr, "Done executing\n");
+
     // Delete the tree and return from execute call
     deleteTree(executionTree);
+
+    // fprintf(stderr, "Done deleting\n");
+
     return;
 }
 
 
 void execTree(node *tree, int *fdIn, int *fdOut)
 {
+    // fprintf(stderr, "execTree %i %i /n", fdOut[0], fdOut[1]);
     // Check for tree
     if (tree)
     {
         // Has tree
         if (!tree->isOp)
         {
-            printf("Is NOT Operator: ");
-            int i=0;
-            while (tree->command[i])
-            {
-                printf("%s ",tree->command[i]);
-                i++;
-            }
-            printf("\n");
+            // printf("Is NOT Operator: ");
+            // int i=0;
+            // while (tree->command[i])
+            // {
+            //     printf("%s ",tree->command[i]);
+            //     i++;
+            // }
+            // printf("\n");
 
             char **cmd = tree->command;
             // What is commented below is a fully working basic shell implementation
@@ -194,7 +207,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
                 }
                 else 
                 {
-                    printf("No such file or directory '%s'.\n", cmd[1]);
+                    fprintf(stderr, "No such file or directory '%s'.\n", cmd[1]);
                     return;
                 }
             }
@@ -205,28 +218,29 @@ void execTree(node *tree, int *fdIn, int *fdOut)
         } else
         {
             // Is Operator
-            printf("Is Operator: ");
-            int i=0;
-            while (tree->command[i])
-            {
-                printf("%s ",tree->command[i]);
-                i++;
-            }
-            printf("\n");
+            // printf("Is Operator: ");
+            // int i=0;
+            // while (tree->command[i])
+            // {
+            //     printf("%s ",tree->command[i]);
+            //     i++;
+            // }
+            // printf("\n");
             // Which Operator?
             char *op = tree->command[0];
 
             // Piping
             if (strcmp(op, "|") == 0) 
             {
-                printf("Piping operator\n");
+                // fprintf(stderr, "Piping operator\n");
 
                 if (!tree->left->isOp && !tree->right->isOp) 
                 {
-                    printf("PIPING! %s | %s\n", tree->left->command, tree->right->command);
+                    // fprintf(stderr, "PIPING! %s | %s\n", tree->left->command, tree->right->command);
                     pipeCmds(tree->left->command, tree->right->command, fdIn, fdOut);
+                    // fprintf(stderr, "DONE PIPINGG\n");
                 }
-
+                return;
             }
             else
             {
@@ -240,7 +254,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
     }
     else
     {
-        fprintf(stderr, "Tree is empty");
+        fprintf(stderr, "Tree is empty.\n");
     }
 }
 
@@ -251,47 +265,35 @@ void execTree(node *tree, int *fdIn, int *fdOut)
 // This started as a simple test for 1-1 piping
 void pipeCmds(char **inputCmd, char **outputCmd, int *fdIn, int *fdOut)
 {
-    // Piping
-    // int fd[2]; // [read, write]
-    pid_t pid;
+    // fprintf(stdout, "inputCmd: %s\n", *inputCmd);
+    // fprintf(stdout, "outputCmd: %s\n", *outputCmd);
 
-    fprintf(stdout, "child input: %s %s\n", *inputCmd, *(inputCmd+1));
-    fprintf(stdout, "parent input (output): %s\n", *outputCmd);
+    // fprintf(stderr, "Inside child\n");
 
-    if ((pid = fork()) < 0) 
+    close(fdIn[0]);    /* close read end of pipe               */
+
+    // Create pipe from inputCmd to outputCmd
+    int fdPipe[2]; // [read, write]
+    // Create pipe, check for failure
+    if (pipe(fdPipe) < 0) 
     { 
-        perror("Fork Failed"); 
+        perror("Pipe fdPipe Failed\n"); 
         exit(1); 
     }
-    else if (pid == 0) // Child
-    {
-        close(fdIn[0]);    /* close read end of pipe               */
 
-        // Create pipe from inputCmd to outputCmd
-        int fdPipe[2]; // [read, write]
-        // Create pipe, check for failure
-        if (pipe(fdPipe) < 0) 
-        { 
-            perror("Pipe fdPipe Failed"); 
-            exit(1); 
-        }
-    
-        // Execute first
-        execCmd(inputCmd, fdIn, fdPipe);
+    // Execute first
+    // fprintf(stderr, "Execute inputCmd\n");
+    execCmd(inputCmd, fdIn, fdPipe);
+    // fprintf(stderr, "Done execute inputCmd\n");
 
-        // Pipe output to input of next command
-        close(fdPipe[1]);    /* close write end of pipe              */
-        // dup2(fdPipe[0], fdIn[1]);   /* make 0 same as read-from end of pipe */
+    // Pipe output to input of next command
+    close(fdPipe[1]);    /* close write end of pipe              */
+    // dup2(fdPipe[0], fdIn[1]);   /* make 0 same as read-from end of pipe */
 
-        // Run output / second command
-        execCmd(outputCmd, fdPipe, fdOut);
-        return;
-    }
-    else // Parent
-    {
-        int wc = wait(NULL);
-        return;
-    }
+    // Run output / second command
+    // fprintf(stderr, "Execute outputCmd\n");
+    execCmd(outputCmd, fdPipe, fdOut);
+    // fprintf(stderr, "Done execute outputCmd\n");
 
 }
 
@@ -302,7 +304,7 @@ void execCmd(char **cmd, int *fdIn, int *fdOut)
     // Fork process, check for failure
     if ((pid = fork()) < 0) 
     { 
-        perror("Fork Failed"); 
+        perror("Fork Failed\n"); 
         exit(1);
     }
     else if (pid == 0) //Child
@@ -326,7 +328,7 @@ void execCmd(char **cmd, int *fdIn, int *fdOut)
         close(fdOut[1]);    /* close write end of pipe              */
         int wc = wait(NULL);
         
-        fprintf(stdout, "execCmd done");
+        // fprintf(stdout, "execCmd done\n");
     }
     return;
 }

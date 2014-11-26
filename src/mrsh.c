@@ -27,6 +27,8 @@ int main (void)
     // Main prompt loop
     while (1)
     {
+        // fprintf(stderr, "\nGET NEW INPUT\n");
+
         // Get Current Working Directory
         if (getcwd(cwd, sizeof(cwd)) != NULL)
         {
@@ -45,6 +47,8 @@ int main (void)
                     "$ ");
             line = readline(promptMessage);
 
+            // fprintf(stderr, "\nLINE: %s\n", line);
+
             if (line == NULL)
             {
                 perror("READLINE ERROR!");
@@ -59,7 +63,7 @@ int main (void)
             // Parse the current line and store in argv
             //printf("Line: %s\n", line);
             parse(line, argv);       /*   parse the line              */
-            //printf("Argv: %s\n", argv[0]);
+            // fprintf(stderr, "Argv: %s\n", argv[0]);
 
             //TODO Either in parse.c or a new file/header altogether(uses argv)
             //     check for ~ and replace with home directory -> getenv("HOME");

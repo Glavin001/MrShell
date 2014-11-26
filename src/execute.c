@@ -216,7 +216,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             execCmd(tree->command, fdIn, fdOut);
 
             return;
-        } else
+        } else //node is an operator
         {
 
             // Which Operator?
@@ -225,13 +225,18 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             // Piping
             if (strcmp(op, "|") == 0) 
             {
-                // fprintf(stderr, "Piping operator\n");
+                 fprintf(stderr, "Piping operator\n");
 
                 if (!tree->left->isOp && !tree->right->isOp) 
                 {
                     // fprintf(stderr, "PIPING! %s | %s\n", tree->left->command, tree->right->command);
                     pipeCmds(tree->left->command, tree->right->command, fdIn, fdOut);
                     // fprintf(stderr, "DONE PIPINGG\n");
+                }
+                else
+                {
+                    //Recurse down the tree
+                    execTree(tree->left, fdIn, fdOut);
                 }
                 return;
             }
@@ -255,10 +260,8 @@ void execTree(node *tree, int *fdIn, int *fdOut)
 // Simple 1-1 piping
 void pipeCmds(char **inputCmd, char **outputCmd, int *fdIn, int *fdOut)
 {
-    // fprintf(stdout, "inputCmd: %s\n", *inputCmd);
-    // fprintf(stdout, "outputCmd: %s\n", *outputCmd);
-
-    // fprintf(stderr, "Inside child\n");
+     fprintf(stdout, "inputCmd: %s\n", *inputCmd);
+     fprintf(stdout, "outputCmd: %s\n", *outputCmd);
 
     close(fdIn[0]);    /* close read end of pipe               */
 

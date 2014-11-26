@@ -40,7 +40,7 @@ void parse(char *line, char **argv)
                 }
                 line++;
             }
-            else if (*line == '"')
+            else if (*line == '"' || *line == '\'')
             {
                 // fprintf(stderr, "Begin quote: %s\n", line);
                 beginQuote = *line;

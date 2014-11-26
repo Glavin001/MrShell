@@ -109,6 +109,15 @@ void execute(char **argv)
         count++;
     }
 
+    if (strcmp(argv[0], "cd") == 0) 
+    {
+         // Change Directory
+         if (chdir(argv[1]) == 0) return;
+         else 
+         {
+             printf("No such file or directory '%s'.\n", argv[1]);
+         }
+    }
     // Create an execution tree from map and argv
     node *executionTree = NULL;
     buildTree(&executionTree, argv, map);
@@ -145,52 +154,8 @@ void execute(char **argv)
     // Delete the tree and return from execute call
     deleteTree(executionTree);
     return;
-
-
-    // What is commented below is a fully working basic shell implementation
-    // It will fork/run your commands, but not take into account pipes and 
-    // whatnot. Left in for reference & copy/pasting to suit future needs.
-    // If testing this out don't forget to comment the return above / move 
-    // it below this block   
-
-    // // Check for built-in functions
-    // if (strcmp(argv[0], "cd") == 0) 
-    // {
-    //     // Change Directory
-    //     if (chdir(argv[1]) == 0) return;
-    //     else 
-    //     {
-    //         printf("No such file or directory '%s'.\n", argv[1]);
-    //         return;
-    //     }
-    // }
-
-    // pid_t pid;
-    // // Fork, if error exit
-    // if ((pid = fork()) < 0) 
-    // {   
-    //     printf("*** ERROR: forking child process failed.\n");
-    //     exit(1);
-    // }
-    // else if (pid == 0) // Child process, execute command
-    // {
-    //     if (execvp(*argv, argv) < 0) 
-    //     {
-    //         printf("*** ERROR: exec failed.\n");
-    //         exit(1);
-    //     }
-    // }
-    // else // Parent process
-    // {
-    //     // Wait for child to complete
-    //     int wc = wait(NULL);
-    //     if (wc == -1)
-    //     {
-    //         printf("*** Error: wait failed.\n");
-    //         exit(1);
-    //     }
-    // }
 }
+
 //Basic exec tree (Base Case)
 void execTree (node *tree)
 {

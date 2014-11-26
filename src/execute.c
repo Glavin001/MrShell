@@ -145,8 +145,6 @@ void execute(char **argv)
     node *executionTree = NULL;
     buildTree(&executionTree, argv, map);
 
-    // printPostorder(executionTree);
-
     // Create pipe file descriptors
     int fdIn[2]; // [read, write]
     int fdOut[2]; // [read, write]
@@ -200,24 +198,17 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             // printf("\n");
 
             char **cmd = tree->command;
-            // What is commented below is a fully working basic shell implementation
-            // It will fork/run your commands, but not take into account pipes and 
-            // whatnot. Left in for reference & copy/pasting to suit future needs.
-            // If testing this out don't forget to comment the return above / move 
-            // it below this block   
+       
 
             // Check for built-in functions
             if (strcmp(cmd[0], "cd") == 0) 
             {
                 // Change Directory
-                if (chdir(cmd[1]) == 0) {
-                    return;
-                }
-                else 
+                if (chdir(cmd[1]) != 0) 
                 {
                     fprintf(stderr, "No such file or directory '%s'.\n", cmd[1]);
-                    return;
                 }
+                return;
             }
 
             execCmd(tree->command, fdIn, fdOut);
@@ -225,15 +216,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             return;
         } else
         {
-            // Is Operator
-            // printf("Is Operator: ");
-            // int i=0;
-            // while (tree->command[i])
-            // {
-            //     printf("%s ",tree->command[i]);
-            //     i++;
-            // }
-            // printf("\n");
+
             // Which Operator?
             char *op = tree->command[0];
 
@@ -267,10 +250,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
 }
 
 
-// This isn't working properly. I'm thinking it has something to
-// do with the file descriptors and stdin/out. Although during testing
-// the parent always ran first, couldn't figure out why
-// This started as a simple test for 1-1 piping
+// Simple 1-1 piping
 void pipeCmds(char **inputCmd, char **outputCmd, int *fdIn, int *fdOut)
 {
     // fprintf(stdout, "inputCmd: %s\n", *inputCmd);
@@ -328,7 +308,7 @@ void execCmd(char **cmd, int *fdIn, int *fdOut)
         if (execvp(*cmd, cmd) < 0)
         {
             fprintf(stderr, "*** ERROR: child exec failed: %s\n", *cmd);
-            exit(1);
+            _exit(1);
         }
     }
     else //Parent

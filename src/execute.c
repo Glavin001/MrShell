@@ -314,7 +314,12 @@ void execCmd(char **cmd, int *fdIn, int *fdOut)
     else //Parent
     {
         close(fdOut[1]);    /* close write end of pipe              */
-        int wc = wait(NULL);
+        
+        // Try to wait for child
+        if (wait(NULL) == -1)
+        {
+            printf("*** Error: wait failed. This may get confusing\n");         
+        }
         
         // fprintf(stdout, "execCmd done\n");
     }

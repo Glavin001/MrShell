@@ -43,12 +43,16 @@ int main (void)
 
             // Check for git repo & prompt for input
             char *gitBranch = (char *) malloc( GIT_BRANCH_LENGTH * sizeof(char *));
-            if (getCurrentGitBranch(gitBranch) == 0) 
+            char *dateStr = (char *) malloc( 10 * sizeof(char *));
+            getDate(dateStr);
+            // fprintf(stderr, "%s\n", dateStr);
+            if (getCurrentGitBranch(gitBranch) == 0)
             {
                 // No branch found
                 // Prompt User for input
                 sprintf(promptMessage, 
-                        "%s%s%s @ %s%s%s%s", 
+                        "%s%s%s - %s%s%s @ %s%s%s%s", 
+                        KMAGENTA, dateStr, KNORMAL,
                         KRED, user, KNORMAL, 
                         KGREEN, cwd, KNORMAL, 
                         "\n$ ");
@@ -58,13 +62,15 @@ int main (void)
                 // Git Branch found
                 // Prompt User for input
                 sprintf(promptMessage,
-                        "%s%s%s @ %s%s%s%s git(%s)%s%s", 
+                        "%s%s%s - %s%s%s @ %s%s%s%s git(%s)%s%s", 
+                        KMAGENTA, dateStr, KNORMAL,
                         KRED, user, KNORMAL, 
                         KGREEN, cwd, KNORMAL, 
                         KCYAN, gitBranch, KNORMAL,
                         "\n$ ");
             }
             free(gitBranch);
+            free(dateStr);
 
             // Get the input
             line = readline(promptMessage);

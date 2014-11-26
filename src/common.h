@@ -3,6 +3,7 @@
 
 void printWelcome ();
 char *trimwhitespace(char *str);
-char *getCurrentGitBranch();
+int getCurrentGitBranch(char *buff);
+int getDate(char *buff);
 
 #endif

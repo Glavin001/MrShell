@@ -128,10 +128,9 @@ char *trimwhitespace(char *str)
   return str;
 }
 
-int getCurrentGitBranch(char *buff)
+
+int getOutputOfCmd(char *cmd, char *cmdv, char *buff, int buffLen)
 {
-    char *cmd = "git symbolic-ref --short -q HEAD";
-    char *cmdv[6];
 
     parse(cmd, cmdv); /* parse the line */
 
@@ -160,13 +159,38 @@ int getCurrentGitBranch(char *buff)
     close(fdOut[1]);    /* close write end of pipe               */
     close(fdIn[1]);    /* close write end of pipe               */
     
-    int len = (sizeof(char *) * GIT_BRANCH_LENGTH);
+    int len = (sizeof(char *) * buffLen);
     // fprintf(stderr, "sizeof(buff) : %i\n", len);
 
     int nbytes = read(fdOut[0], buff, len);
     
     close(fdOut[0]);    /* close read end of pipe               */
     close(fdIn[0]);    /* close read end of pipe               */
+
+    // printf("Current Git Branch After: '%s' '%i'\n", buff, nbytes);
+
+    return nbytes;
+}
+
+
+int getDate(char *buff)
+{
+    char *cmd = "date +%H:%M:%S";
+    char *cmdv[2];
+    int buffLen = 10;
+    int nbytes = getOutputOfCmd(cmd, cmdv, buff, buffLen);
+    trimwhitespace(buff);    
+    return nbytes;
+}
+
+int getCurrentGitBranch(char *buff)
+{
+    char *cmd = "git symbolic-ref --short -q HEAD";
+    char *cmdv[6];
+
+    int buffLen = GIT_BRANCH_LENGTH;
+
+    int nbytes = getOutputOfCmd(cmd, cmdv, buff, buffLen);
     
     // printf("Current Git Branch Befor: '%s' '%i'\n", buff, nbytes);
     trimwhitespace(buff);

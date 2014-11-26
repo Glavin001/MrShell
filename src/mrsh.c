@@ -56,14 +56,20 @@ int main (void)
             }
 
             // Add the line to history
-            if (line[0]!=0) {
+            if (line[0]!=0)
+            {
                 add_history(line);
             }
 
             // Parse the current line and store in argv
             //printf("Line: %s\n", line);
-            parse(line, argv);       /*   parse the line              */
-            // fprintf(stderr, "Argv: %s\n", argv[0]);
+            parse(line, argv); /* parse the line */
+
+            // int i;
+            // for (i=0; i<40; i++)
+            // {
+            //     fprintf(stderr, "Argv: %i %s\n", i, argv[i]);
+            // }
 
             //TODO Either in parse.c or a new file/header altogether(uses argv)
             //     check for ~ and replace with home directory -> getenv("HOME");

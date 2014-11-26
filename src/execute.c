@@ -75,15 +75,7 @@ void buildMap(int *map, char **argv)
         // fprintf(stderr, "buildMap %i\n", count);
         if (argv[count] == '\0')
         {
-            if (argv[count+1] == '\0') 
-            {
-                // fprintf(stderr, "break buildMap\n");
-                break;
-            }
-            // fprintf(stderr, "Continuing");
-
-            count++;
-            continue;
+            break;
         }
         else
         {
@@ -145,7 +137,16 @@ void execute(char **argv)
     }
     // Create an execution tree from map and argv
     node *executionTree = NULL;
+
+    // fprintf(stderr, "Print tree\n");
+    // printPreorder(executionTree);
+    // fprintf(stderr, "\n");
+
     buildTree(&executionTree, argv, map);
+
+    // fprintf(stderr, "Print tree\n");
+    // printPreorder(executionTree);
+    // fprintf(stderr, "\n");
 
     // Create pipe file descriptors
     int fdIn[2]; // [read, write]
@@ -176,8 +177,6 @@ void execute(char **argv)
     // Delete the tree and return from execute call
     deleteTree(executionTree);
 
-    // fprintf(stderr, "Done deleting\n");
-
     return;
 }
 
@@ -200,8 +199,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             // printf("\n");
 
             char **cmd = tree->command;
-       
-
+            
             // Check for built-in functions
             if (strcmp(cmd[0], "cd") == 0) 
             {
@@ -216,16 +214,17 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             execCmd(tree->command, fdIn, fdOut);
 
             return;
-        } else //node is an operator
+        }
+        else
         {
-
+            // Node is an operator
             // Which Operator?
             char *op = tree->command[0];
 
             // Piping
             if (strcmp(op, "|") == 0) 
             {
-                 fprintf(stderr, "Piping operator\n");
+                // fprintf(stderr, "Piping operator\n");
 
                 if (!tree->left->isOp && !tree->right->isOp) 
                 {
@@ -235,8 +234,20 @@ void execTree(node *tree, int *fdIn, int *fdOut)
                 }
                 else
                 {
-                    //Recurse down the tree
-                    execTree(tree->left, fdIn, fdOut);
+                    // Recurse down the tree
+                    // fprintf(stderr, "recurse down tree\n");
+                    int fdPipe[2]; // [read, write]
+                    // Create pipe, check for failure
+                    if (pipe(fdPipe) < 0) 
+                    { 
+                        perror("Pipe fdPipe Failed\n"); 
+                        exit(1); 
+                    }
+                    execTree(tree->left, fdIn, fdPipe);
+                    close(fdPipe[1]);    /* close write end of pipe              */
+                    execTree(tree->right, fdPipe, fdOut);
+                    close(fdOut[1]);    /* close write end of pipe              */
+
                 }
                 return;
             }
@@ -245,9 +256,6 @@ void execTree(node *tree, int *fdIn, int *fdOut)
                 fprintf(stderr, "Unsupported Operator: %s\n", op);
                 return;
             }
-
-            // execTree(tree->left, fd);
-            // execTree(tree->right, fd);
         }
     }
     else
@@ -260,8 +268,8 @@ void execTree(node *tree, int *fdIn, int *fdOut)
 // Simple 1-1 piping
 void pipeCmds(char **inputCmd, char **outputCmd, int *fdIn, int *fdOut)
 {
-     fprintf(stdout, "inputCmd: %s\n", *inputCmd);
-     fprintf(stdout, "outputCmd: %s\n", *outputCmd);
+    // fprintf(stdout, "inputCmd: %s\n", *inputCmd);
+    // fprintf(stdout, "outputCmd: %s\n", *outputCmd);
 
     close(fdIn[0]);    /* close read end of pipe               */
 

@@ -227,31 +227,17 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             {
                 // fprintf(stderr, "Piping operator\n");
 
-                if (!tree->left->isOp && !tree->right->isOp) 
-                {
-                    // fprintf(stderr, "PIPING! %s | %s\n", tree->left->command, tree->right->command);
-                    pipeCmds(tree->left->command, tree->right->command, fdIn, fdOut);
-                    // fprintf(stderr, "DONE PIPINGG\n");
-                }
-                else
-                {
-                    // Recurse down the tree
-                    // fprintf(stderr, "recurse down tree\n");
-                    int fdPipe[2]; // [read, write]
-                    // Create pipe, check for failure
-                    if (pipe(fdPipe) < 0) 
-                    { 
-                        perror("Pipe fdPipe Failed\n"); 
-                        exit(1); 
-                    }
-                    execTree(tree->left, fdIn, fdPipe);
-                    close(fdPipe[1]);    /* close write end of pipe              */
-                    execTree(tree->right, fdPipe, fdOut);
-                    close(fdOut[1]);    /* close write end of pipe              */
+                // Recurse down the tree
+                // fprintf(stderr, "recurse down tree\n");
 
-                }
+                pipeTree(tree, fdIn, fdOut);
+
                 return;
             }
+            // else if (strcmp(op, ">") == 0)
+            // {
+
+            // }
             else
             {
                 fprintf(stderr, "Unsupported Operator: %s\n", op);
@@ -266,36 +252,21 @@ void execTree(node *tree, int *fdIn, int *fdOut)
 }
 
 
-// Simple 1-1 piping
-void pipeCmds(char **inputCmd, char **outputCmd, int *fdIn, int *fdOut)
+// Piping Tree
+void pipeTree(node *tree, int *fdIn, int *fdOut)
 {
-    // fprintf(stdout, "inputCmd: %s\n", *inputCmd);
-    // fprintf(stdout, "outputCmd: %s\n", *outputCmd);
-
-    close(fdIn[0]);    /* close read end of pipe               */
-
-    // Create pipe from inputCmd to outputCmd
-    int fdPipe[2]; // [read, write]
+    
     // Create pipe, check for failure
+    int fdPipe[2]; // [read, write]
     if (pipe(fdPipe) < 0) 
     { 
         perror("Pipe fdPipe Failed\n"); 
         exit(1); 
     }
-
-    // Execute first
-    // fprintf(stderr, "Execute inputCmd\n");
-    execCmd(inputCmd, fdIn, fdPipe);
-    // fprintf(stderr, "Done execute inputCmd\n");
-
-    // Pipe output to input of next command
+    execTree(tree->left, fdIn, fdPipe);
     close(fdPipe[1]);    /* close write end of pipe              */
-    // dup2(fdPipe[0], fdIn[1]);   /* make 0 same as read-from end of pipe */
-
-    // Run output / second command
-    // fprintf(stderr, "Execute outputCmd\n");
-    execCmd(outputCmd, fdPipe, fdOut);
-    // fprintf(stderr, "Done execute outputCmd\n");
+    execTree(tree->right, fdPipe, fdOut);
+    close(fdOut[1]);    /* close write end of pipe              */
 
 }
 

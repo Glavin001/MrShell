@@ -116,13 +116,13 @@ void execute(char **argv)
     //TODO Run execution tree
 
     // Pipe testing
-    char *input[3];
-    char *output[2];
-    input[0] = "cat";
-    input[1] = "README.md";
-    input[2] = '\0';
-    output[0] = "wc";
-    output[1] = '\0';
+    //char *input[3];
+    //char *output[2];
+    //input[0] = "cat";
+    //input[1] = "README.md";
+    //input[2] = '\0';
+    //output[0] = "wc";
+    //output[1] = '\0';
 
     pid_t pid;
     if ((pid = fork()) < 0) 
@@ -136,7 +136,10 @@ void execute(char **argv)
     }
     else //Parent
     {
-        int wc = wait(NULL);
+        if (wait(NULL) == -1)
+        {
+            printf("*** Error: wait failed. This may get confusing\n");         
+        }
     }
     
     // Delete the tree and return from execute call
@@ -236,7 +239,7 @@ void mrshPipe(char **input, char **output)
         dup2(fd[1],1);   /* make 1 same as write-to end of pipe  */
 
         //Run command, check for error
-        fprintf(stderr, "Above child execvp\n");
+        //fprintf(stderr, "Above child execvp\n");
         if (execvp(*input, input) < 0)
         {
             fprintf(stderr, "*** ERROR: child exec failed: %s\n", *input);
@@ -247,7 +250,10 @@ void mrshPipe(char **input, char **output)
     else //Parent
     {
         //printf("above wait\n");
-        int wc = wait(NULL);
+        if (wait(NULL) == -1)
+        {
+            printf("*** Error: wait failed. This may get confusing\n");         
+        }
 
         close(fd[1]);    /* close write end of pipe              */
         dup2(fd[0],0);   /* make 0 same as read-from end of pipe */

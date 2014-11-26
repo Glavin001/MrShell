@@ -292,7 +292,7 @@ void pipeTreeToFile(node *tree, int *fdIn, int *fdOut, int oflags)
     char *filePath = tree->right->command[0];
     // fprintf(stderr, "filepath: %s\n", filePath);
 
-    int fd = open(filePath, oflags);
+    int fd = open(filePath, oflags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0) {
         perror("fp");
         fprintf(stderr, "ERROR: Write error occured to file '%s'\n", filePath);

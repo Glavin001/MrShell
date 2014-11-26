@@ -1,6 +1,7 @@
 #include <stdio.h> // printf
 #include <stdlib.h>
 #include <string.h>
+#include "tilde.h"   // tilde detection/replacement
 
 void parse(char *origLine, char **argv)
 {
@@ -11,6 +12,7 @@ void parse(char *origLine, char **argv)
     strcpy(line, origLine); // see the below edit
 
     char beginQuote = '\0';
+    char **av = argv;
 
     // While not the end of line
     while (*line != '\0')
@@ -27,7 +29,7 @@ void parse(char *origLine, char **argv)
         // printf("Line after nested while loop 1: %s\n", line);
         
         // save the position of argument
-        *argv++ = line;
+        *av++ = line;
 
         // while not null, space, tab, or new line
         while (*line != '\0' && *line != ' ' &&
@@ -89,5 +91,15 @@ void parse(char *origLine, char **argv)
         }
     }
     // Null terminate the argument list
-    *argv = (char *) '\0';
+    *av = (char *) '\0';
+
+    // Process Args and replace if necessary
+
+    // printf("Before tildeFinder\n");
+    char* homeDir = getenv("HOME"); // Get the home directory at start of shell
+    tildeFinder(argv, homeDir);
+    // printf("After tildeFinder\n");
+
+    // TODO: Variables, such as $(ENVVAR)
+
 }

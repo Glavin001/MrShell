@@ -14,7 +14,6 @@
 #include "execute.h" // execute
 #include "chalk.h"   // color constants
 #include "constants.h"
-#include "tilde.h"   // tilde detection/replacement
 
 int main (void)
 {
@@ -25,8 +24,6 @@ int main (void)
     
     char cwd[CWD_LENGTH];  // Stores the current workind directory
     char promptMessage[PROMPT_MESSAGE_LENGTH]; // Stores the entire prompt line
-
-    char* homeDir = getenv("HOME"); // Get the home directory at start of shell
 
     // Main prompt loop
     while (1)
@@ -70,10 +67,7 @@ int main (void)
             // Parse the current line and store in argv
             //printf("Line: %s\n", line);
             parse(line, argv); /* parse the line */
-            printf("Before tildeFinder\n");
-            tildeFinder(argv, homeDir);
-            printf("After tildeFinder\n");
-
+            
             // int i;
             // for (i=0; i<40; i++)
             // {

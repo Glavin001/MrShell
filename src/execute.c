@@ -207,6 +207,15 @@ void execTree(node *tree, int *fdIn, int *fdOut)
                 }
                 return;
             }
+            else if (strcmp(cmd[0], "export") == 0)
+            {
+                // Export
+                char *a = cmd[1];
+                if (a != NULL) {
+                    putenv(a);
+                }
+                return;
+            }
 
             close(fdIn[1]);    /* close write end of pipe */
             execCmd(tree->command, fdIn, fdOut, true);

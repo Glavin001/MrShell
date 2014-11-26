@@ -2,11 +2,9 @@
 #include <stdlib.h>  // getenv
 #include <unistd.h>  // fork, wait, execvp, chdir, pid_t
 #include <string.h>  // strcmp, strncpy, strcat, strlen
-#include <pthread.h> //
-#include <stdbool.h>
+#include <pthread.h> // 
 #include <fcntl.h>
 
-#include "tree.h"
 #include "execute.h"
 #include "constants.h"
 
@@ -205,7 +203,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             }
 
             close(fdIn[1]);    /* close write end of pipe */
-            execCmd(tree->command, fdIn, fdOut);
+            execCmd(tree->command, fdIn, fdOut, true);
 
             return;
         }
@@ -299,7 +297,7 @@ void pipeTreeToFile(node *tree, int *fdIn, int *fdOut, int oflags)
 
 }
 
-void execCmd(char **cmd, int *fdIn, int *fdOut)
+void execCmd(char **cmd, int *fdIn, int *fdOut, bool showErrors)
 {
     pid_t pid;
     
@@ -317,6 +315,12 @@ void execCmd(char **cmd, int *fdIn, int *fdOut)
 
         close(fdOut[0]);    /* close read end of pipe               */
         dup2(fdOut[1],1);   /* make 1 same as write-to end of pipe  */
+
+        if (!showErrors)
+        {
+            int devNull = open("/dev/null", O_WRONLY);
+            dup2(devNull, 2);
+        }
 
         //Run command, check for error
         if (execvp(*cmd, cmd) < 0)

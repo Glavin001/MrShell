@@ -1,6 +1,5 @@
 #include <stdio.h>   // printf, sprintf, perror
 #include <stdlib.h>  // strtol, getenv
-#include <stdbool.h>
 
 #include "tree.h"
 

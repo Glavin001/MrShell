@@ -1,6 +1,8 @@
 #ifndef TREE_H_INCLUDED
 #define TREE_H_INCLUDED
 
+#include <stdbool.h>
+
 struct tree_node {
 	char **command;
 	int isOp;

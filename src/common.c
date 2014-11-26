@@ -1,8 +1,13 @@
 #include <stdio.h>   // printf
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>  // exit
+#include <unistd.h>  // fork, wait, execvp, chdir, pid_t
+
 #include "welcome.h" // welcome screen constants
 #include "chalk.h"   // color constants
+#include "execute.h"
+#include "parse.h"
 
 // === Helpers ===
 void printWelcome ()
@@ -120,4 +125,51 @@ char *trimwhitespace(char *str)
   *(end+1) = 0;
 
   return str;
+}
+
+int getCurrentGitBranch(char *readbuffer)
+{
+    char *cmd = "git symbolic-ref --short -q HEAD";
+    char *cmdv[6];
+
+    parse(cmd, cmdv); /* parse the line */
+
+    // fprintf(stderr, "Cmd: '%s %s'\n", cmdv[0], cmdv[1]);
+
+    // Create pipe file descriptors
+    int fdIn[2]; // [read, write]
+    int fdOut[2]; // [read, write]
+
+    // Create pipe, check for failure
+    if (pipe(fdIn) < 0) 
+    { 
+        perror("Pipe fdIn Failed"); 
+        exit(1); 
+    }
+    // Create pipe, check for failure
+    if (pipe(fdOut) < 0) 
+    { 
+        perror("Pipe fdOut Failed"); 
+        exit(1);
+    }
+
+    execCmd(cmdv, fdIn, fdOut, false);
+
+    // The Output of this executionTree should go to stdout
+    close(fdOut[1]);    /* close write end of pipe               */
+    close(fdIn[1]);    /* close write end of pipe               */
+    
+    // char *readbuffer = (char *) malloc( 80 * sizeof(char *));
+    // char readbuffer[64];
+    int nbytes = read(fdOut[0], readbuffer, sizeof(readbuffer));
+    
+    close(fdOut[0]);    /* close read end of pipe               */
+    close(fdIn[0]);    /* close read end of pipe               */
+    
+    // printf("Current Git Branch Befor: '%s' '%i'\n", readbuffer, nbytes);
+    trimwhitespace(readbuffer);
+
+    // printf("Current Git Branch After: '%s' '%i'\n", readbuffer, nbytes);
+
+    return nbytes;
 }

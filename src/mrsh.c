@@ -40,15 +40,33 @@ int main (void)
                 exit(1);
             }
 
-            // Prompt User for input
-            sprintf(promptMessage, 
-                    "%s%s%s@%s%s%s%s", 
-                    KRED, user, KNORMAL, 
-                    KBLUE, cwd, KNORMAL, 
-                    "$ ");
-            line = readline(promptMessage);
+            char *gitBranch = (char *) malloc( 20 * sizeof(char *));
+            if (getCurrentGitBranch(gitBranch) == 0) 
+            {
+                // No branch found
+                // Prompt User for input
+                sprintf(promptMessage, 
+                        "%s%s%s@%s%s%s%s", 
+                        KRED, user, KNORMAL, 
+                        KBLUE, cwd, KNORMAL, 
+                        "$ ");
+            }
+            else
+            {
+                // Git Branch found
+                // printf("Current Git Branch: '%s'\n", gitBranch);
 
-            // fprintf(stderr, "\nLINE: %s\n", line);
+                // Prompt User for input
+                sprintf(promptMessage,
+                        "%s%s%s@%s%s%s%s(%s)%s%s", 
+                        KRED, user, KNORMAL, 
+                        KBLUE, cwd, KNORMAL, 
+                        KMAGENTA, gitBranch, KNORMAL,
+                        "$ ");
+            }
+            free(gitBranch);
+
+            line = readline(promptMessage);
 
             if (line == NULL)
             {
@@ -56,7 +74,9 @@ int main (void)
                 exit(1);
             }
 
+            // fprintf(stderr, "\nLINE BEFOR TRIM: '%s'\n", line);
             trimwhitespace(line);
+            // fprintf(stderr, "\nLINE AFTER TRIM: '%s'\n", line);
 
             // Add the line to history
             if (line[0]!=0)

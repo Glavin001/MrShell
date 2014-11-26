@@ -8,7 +8,7 @@ void parse(char *origLine, char **argv)
 
     // Duplicate `line`
     char *line;
-    line = (char *) malloc(strlen(origLine));
+    line = (char *) malloc(strlen(origLine) + 1);
     strcpy(line, origLine); // see the below edit
 
     char beginQuote = '\0';

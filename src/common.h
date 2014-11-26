@@ -3,5 +3,6 @@
 
 void printWelcome ();
 char *trimwhitespace(char *str);
+char *getCurrentGitBranch();
 
 #endif

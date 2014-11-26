@@ -50,7 +50,7 @@ int main (void)
                 sprintf(promptMessage, 
                         "%s%s%s @ %s%s%s%s", 
                         KRED, user, KNORMAL, 
-                        KBLUE, cwd, KNORMAL, 
+                        KGREEN, cwd, KNORMAL, 
                         "\n$ ");
             }
             else
@@ -118,7 +118,7 @@ int main (void)
         }
     }
 
-    printf("\nMrShell piping out!\n");
+    printf("\n%sM%sr%sS%sh%se%sl%sl %spiping out!\n", KRED, KGREEN, KYELLOW, KBLUE, KMAGENTA, KCYAN, KWHITE, KNORMAL);
 
     return 0;
 }

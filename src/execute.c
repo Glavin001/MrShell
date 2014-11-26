@@ -8,63 +8,6 @@
 #include "execute.h"
 #include "constants.h"
 
-void buildTree(node **tree, char **argv, int *map)
-{
-    // Build Operators Map
-    // Iterate thru all args in argv backwards
-    int i;
-    for (i=ARGV_LENGTH-1; i>=0; i--)
-    {
-        // Check if arg is an operator
-        if (map[i] != 0)
-        {
-            // Is an Operator
-            //  1:  >    2:  >>    3:  |    4:  <::    5:  ::>    6:  :  
-            char **command = malloc(2 * sizeof(char*));
-            command[0] = argv[i];
-            command[1] = NULL;
-            insertNode(tree, command, true, false);
-        }
-    }
-
-    // Commands
-    int count = 0;
-    while (argv[count] != '\0')
-    {
-        bool isFirstCmd = (count == 0) ? true : false;
-        
-        // if an operator skip this iteration
-        if (map[count] != 0)
-        {
-            count++;
-            continue;
-        }
-
-        // Count how many 'flags' are in this command
-        int length = 0;
-        while (map[count] == 0)
-        {
-            length++;
-            count++;
-        }
-        // Allocate space for the command
-        char **command = malloc ( (length + 1) * sizeof(char *));
-
-        // Add each command/flag from argv to command
-        int i;
-        for (i = 0; i < length; i++)
-            command[i] = argv[count - length + i];
-        // Null terminate the command
-        command[length] = NULL;
-
-        // If first, insert left, else insert acording to algorithm in tree
-        if (isFirstCmd)
-            insertNode(tree, command, false, true);
-        else
-            insertNode(tree, command, false, false);  
-    }
-}
-
 void buildMap(int *map, char **argv)
 {
     // Create a map of operators from argv
@@ -109,6 +52,11 @@ void buildMap(int *map, char **argv)
             else if (strcmp(argv[count], ":") == 0) 
             {
                 map[count] = 6;
+                // printf(" : at argv[%d]\n", count);
+            }
+            else if (strcmp(argv[count], "&&") == 0) 
+            {
+                map[count] = 7;
                 // printf(" : at argv[%d]\n", count);
             }
             // else if (strcmp(argv[count], "") == 0) {}
@@ -161,7 +109,8 @@ void execute(char **argv)
     dup2(1, fdOut[1]);   /* make 1 same as write-to end of pipe  */
 
     // Execute the tree!
-    execTree(executionTree, fdIn, fdOut);
+    int status;
+    execTree(executionTree, fdIn, fdOut, &status);
     
     // fprintf(stderr, "Done executing\n");
 
@@ -171,7 +120,7 @@ void execute(char **argv)
     return;
 }
 
-void execTree(node *tree, int *fdIn, int *fdOut)
+void execTree(node *tree, int *fdIn, int *fdOut, int *status)
 {
     // fprintf(stderr, "execTree %i %i /n", fdOut[0], fdOut[1]);
     // Check for tree
@@ -218,7 +167,8 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             }
 
             close(fdIn[1]);    /* close write end of pipe */
-            execCmd(tree->command, fdIn, fdOut, true);
+            execCmd(tree->command, fdIn, fdOut, true, status);
+            // fprintf(stderr, "status: %i\n", *status);
 
             return;
         }
@@ -236,7 +186,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
                 // Recurse down the tree
                 // fprintf(stderr, "recurse down tree\n");
 
-                pipeTree(tree, fdIn, fdOut);
+                pipeTree(tree, fdIn, fdOut, status);
 
                 return;
             }
@@ -244,12 +194,18 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             {
                 // fprintf(stderr, "left: %s\n", tree->left->command[0]);
                 // fprintf(stderr, "right: %s\n", tree->right->command[0]);
-                pipeTreeToFile(tree, fdIn, O_CREAT | O_TRUNC | O_WRONLY);
+                pipeTreeToFile(tree, fdIn, status, O_CREAT | O_TRUNC | O_WRONLY);
                 return;
             }
             else if (strcmp(op, ">>") == 0)
             {
-                pipeTreeToFile(tree, fdIn, O_CREAT | O_APPEND | O_WRONLY);
+                pipeTreeToFile(tree, fdIn, status, O_CREAT | O_APPEND | O_WRONLY);
+                return;
+            }
+            else if (strcmp(op, "&&") == 0)
+            {
+                // fprintf(stderr, "&&");
+                execAndTree(tree, fdIn, fdOut, status);
                 return;
             }
             else
@@ -266,8 +222,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
 }
 
 
-// Piping Tree
-void pipeTree(node *tree, int *fdIn, int *fdOut)
+void execAndTree(node *tree, int *fdIn, int *fdOut, int *status)
 {
     
     // Create pipe, check for failure
@@ -277,14 +232,41 @@ void pipeTree(node *tree, int *fdIn, int *fdOut)
         perror("Pipe fdPipe Failed\n"); 
         exit(1); 
     }
-    execTree(tree->left, fdIn, fdPipe);
+    execTree(tree->left, fdIn, fdPipe, status);
     close(fdPipe[1]);    /* close write end of pipe */
-    execTree(tree->right, fdPipe, fdOut);
+
+    if (*status == 0)
+    {
+        execTree(tree->right, fdPipe, fdOut, status);
+        close(fdOut[1]);    /* close write end of pipe */    
+    }
+    else
+    {
+        // fprintf(stderr, "Command errored: %i\n", *status);
+    }
+
+}
+
+
+// Piping Tree
+void pipeTree(node *tree, int *fdIn, int *fdOut, int *status)
+{
+    
+    // Create pipe, check for failure
+    int fdPipe[2]; // [read, write]
+    if (pipe(fdPipe) < 0) 
+    { 
+        perror("Pipe fdPipe Failed\n"); 
+        exit(1); 
+    }
+    execTree(tree->left, fdIn, fdPipe, status);
+    close(fdPipe[1]);    /* close write end of pipe */
+    execTree(tree->right, fdPipe, fdOut, status);
     close(fdOut[1]);    /* close write end of pipe */
 
 }
 
-void pipeTreeToFile(node *tree, int *fdIn, int oflags)
+void pipeTreeToFile(node *tree, int *fdIn, int *status, int oflags)
 {
     // Create pipe, check for failure
     int fdPipe[2]; // [read, write]
@@ -308,11 +290,11 @@ void pipeTreeToFile(node *tree, int *fdIn, int oflags)
     close(fdPipe[0]);    /* close read end of pipe               */
     dup2(fd, fdPipe[1]);   /* make 1 same as write-to end of pipe  */
 
-    execTree(tree->left, fdIn, fdPipe);
+    execTree(tree->left, fdIn, fdPipe, status);
 
 }
 
-void execCmd(char **cmd, int *fdIn, int *fdOut, bool showErrors)
+void execCmd(char **cmd, int *fdIn, int *fdOut, bool showErrors, int *status)
 {
     pid_t pid;
     
@@ -350,11 +332,10 @@ void execCmd(char **cmd, int *fdIn, int *fdOut, bool showErrors)
         close(fdOut[1]);    /* close write end of pipe              */
         
         // Try to wait for child
-        if (wait(NULL) == -1)
+        if (wait(status) == -1)
         {
             printf("*** Error: wait failed. This may get confusing\n");         
         }
-        
         // fprintf(stdout, "execCmd done\n");
     }
     return;

@@ -153,7 +153,8 @@ int getOutputOfCmd(char *cmd, char **cmdv, char *buff, int buffLen)
         exit(1);
     }
 
-    execCmd(cmdv, fdIn, fdOut, false);
+    int status;
+    execCmd(cmdv, fdIn, fdOut, false, &status);
 
     // The Output of this executionTree should go to stdout
     close(fdOut[1]);    /* close write end of pipe               */

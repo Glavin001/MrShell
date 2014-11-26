@@ -2,6 +2,7 @@
 #include <stdlib.h>  // strtol, getenv
 
 #include "tree.h"
+#include "constants.h"
 
 void insertNode(node **tree, char **command, bool isOperator, bool isFirstCmd)
 {
@@ -36,6 +37,65 @@ void traverseDown(node **tree, char **command)
     else
         insertNode(&(*tree)->right, command, false, false);   
 }
+
+
+void buildTree(node **tree, char **argv, int *map)
+{
+    // Build Operators Map
+    // Iterate thru all args in argv backwards
+    int i;
+    for (i=ARGV_LENGTH-1; i>=0; i--)
+    {
+        // Check if arg is an operator
+        if (map[i] != 0)
+        {
+            // Is an Operator
+            //  1:  >    2:  >>    3:  |    4:  <::    5:  ::>    6:  :  
+            char **command = malloc(2 * sizeof(char*));
+            command[0] = argv[i];
+            command[1] = NULL;
+            insertNode(tree, command, true, false);
+        }
+    }
+
+    // Commands
+    int count = 0;
+    while (argv[count] != '\0')
+    {
+        bool isFirstCmd = (count == 0) ? true : false;
+        
+        // if an operator skip this iteration
+        if (map[count] != 0)
+        {
+            count++;
+            continue;
+        }
+
+        // Count how many 'flags' are in this command
+        int length = 0;
+        while (map[count] == 0)
+        {
+            length++;
+            count++;
+        }
+        // Allocate space for the command
+        char **command = malloc ( (length + 1) * sizeof(char *));
+
+        // Add each command/flag from argv to command
+        int i;
+        for (i = 0; i < length; i++)
+            command[i] = argv[count - length + i];
+        // Null terminate the command
+        command[length] = NULL;
+
+        // If first, insert left, else insert acording to algorithm in tree
+        if (isFirstCmd)
+            insertNode(tree, command, false, true);
+        else
+            insertNode(tree, command, false, false);  
+    }
+}
+
 
 void printPreorder(node *tree)
 {

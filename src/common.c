@@ -129,7 +129,7 @@ char *trimwhitespace(char *str)
 }
 
 
-int getOutputOfCmd(char *cmd, char *cmdv, char *buff, int buffLen)
+int getOutputOfCmd(char *cmd, char **cmdv, char *buff, int buffLen)
 {
 
     parse(cmd, cmdv); /* parse the line */

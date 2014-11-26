@@ -34,6 +34,5 @@ void tildeReplacer(char *arg, char *home, int position)
 	printf("newarg: %s\n", newArg);
 	printf("before arg=newArg\n");
 	arg = newArg;
-	printf("%s", newArg);
 	return;
 }

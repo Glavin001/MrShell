@@ -191,13 +191,22 @@ void execute(char **argv)
 //Basic exec tree (Base Case)
 void execTree (node *tree)
 {
-    mrshPipe(tree->left->command, tree->right->command);
+    pid_t pid;
+    if(!tree->isOp)
+    {
+        execvp(*(tree->command), tree->command);
+        fprintf(stderr, "*** ERROR: command not found: %s\n", *(tree->command));
+        _exit(1); 
+    }
+    else
+    {
+        mrshPipe(tree->left->command, tree->right->command);
+    }
+    return;
 }
 
-// This isn't working properly. I'm thinking it has something to
-// do with the file descriptors and stdin/out. Although during testing
-// the parent always ran first, couldn't figure out why
-// This started as a simple test for 1-1 piping
+
+// Simple 1-to-1 piping
 void mrshPipe(char **input, char **output)
 {
     //Piping
@@ -237,20 +246,20 @@ void mrshPipe(char **input, char **output)
     }
     else //Parent
     {
-        printf("above wait\n");
+        //printf("above wait\n");
         int wc = wait(NULL);
 
         close(fd[1]);    /* close write end of pipe              */
         dup2(fd[0],0);   /* make 0 same as read-from end of pipe */
 
         //Run command, check for error
-        printf("Above parent execvp\n");
+        //printf("Above parent execvp\n");
         if (execvp(*output, output) < 0)
         {
             fprintf(stderr, "*** ERROR: parent exec failed: %s\n", *output);
             exit(1);
         }
-        fprintf(stderr, "Below parent execvp\n");
+        //fprintf(stderr, "Below parent execvp\n");
     }
     return;
 }

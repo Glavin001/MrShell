@@ -309,7 +309,8 @@ void execCmd(char **cmd, int *fdIn, int *fdOut)
         //Run command, check for error
         if (execvp(*cmd, cmd) < 0)
         {
-            fprintf(stderr, "*** ERROR: child exec failed: %s\n", *cmd);
+            fprintf(stderr, "*** ERROR: command not found: %s\n", *cmd);
+            // exit child
             _exit(1);
         }
     }

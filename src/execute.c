@@ -4,6 +4,7 @@
 #include <string.h>  // strcmp, strncpy, strcat, strlen
 #include <pthread.h> //
 #include <stdbool.h>
+#include <fcntl.h>
 
 #include "tree.h"
 #include "execute.h"
@@ -234,10 +235,18 @@ void execTree(node *tree, int *fdIn, int *fdOut)
 
                 return;
             }
-            // else if (strcmp(op, ">") == 0)
-            // {
-
-            // }
+            else if (strcmp(op, ">") == 0)
+            {
+                // fprintf(stderr, "left: %s\n", tree->left->command[0]);
+                // fprintf(stderr, "right: %s\n", tree->right->command[0]);
+                pipeTreeToFile(tree, fdIn, fdOut, O_CREAT | O_TRUNC | O_WRONLY);
+                return;
+            }
+            else if (strcmp(op, ">>") == 0)
+            {
+                pipeTreeToFile(tree, fdIn, fdOut, O_CREAT | O_APPEND | O_WRONLY);
+                return;
+            }
             else
             {
                 fprintf(stderr, "Unsupported Operator: %s\n", op);
@@ -264,9 +273,37 @@ void pipeTree(node *tree, int *fdIn, int *fdOut)
         exit(1); 
     }
     execTree(tree->left, fdIn, fdPipe);
-    close(fdPipe[1]);    /* close write end of pipe              */
+    close(fdPipe[1]);    /* close write end of pipe */
     execTree(tree->right, fdPipe, fdOut);
-    close(fdOut[1]);    /* close write end of pipe              */
+    close(fdOut[1]);    /* close write end of pipe */
+
+}
+
+void pipeTreeToFile(node *tree, int *fdIn, int *fdOut, int oflags)
+{
+    // Create pipe, check for failure
+    int fdPipe[2]; // [read, write]
+    if (pipe(fdPipe) < 0) 
+    { 
+        perror("Pipe fdPipe Failed\n"); 
+        exit(1); 
+    }
+
+    char *filePath = tree->right->command[0];
+    // fprintf(stderr, "filepath: %s\n", filePath);
+
+    int fd = open(filePath, oflags);
+    if (fd < 0) {
+        perror("fp");
+        fprintf(stderr, "ERROR: Write error occured to file '%s'\n", filePath);
+        exit(1);
+    }
+
+    // The Output of this executionTree should go to stdout
+    close(fdPipe[0]);    /* close read end of pipe               */
+    dup2(fd, fdPipe[1]);   /* make 1 same as write-to end of pipe  */
+
+    execTree(tree->left, fdIn, fdPipe);
 
 }
 

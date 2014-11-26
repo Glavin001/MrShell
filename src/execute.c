@@ -127,15 +127,6 @@ void execute(char **argv)
 
     // fprintf(stderr, "Map built\n");
 
-    if (strcmp(argv[0], "cd") == 0) 
-    {
-         // Change Directory
-         if (chdir(argv[1]) == 0) return;
-         else 
-         {
-             printf("No such file or directory '%s'.\n", argv[1]);
-         }
-    }
     // Create an execution tree from map and argv
     node *executionTree = NULL;
 
@@ -205,7 +196,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             if (strcmp(cmd[0], "cd") == 0) 
             {
                 // Change Directory
-                if (chdir(cmd[1]) != 0) 
+                if (chdir(cmd[1]) != 0)
                 {
                     fprintf(stderr, "No such file or directory '%s'.\n", cmd[1]);
                 }

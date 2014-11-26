@@ -8,28 +8,25 @@
 #include <readline/readline.h> // readline
 #include <readline/history.h>  // add_history
 
-#include "tree.h"    // Execution tree
-#include "common.h"  // printWelcome
-#include "parse.h"   // parse
-#include "execute.h" // execute
-#include "chalk.h"   // color constants
-#include "constants.h"
+#include "tree.h"      // Execution tree
+#include "common.h"    // printWelcome
+#include "parse.h"     // parse
+#include "execute.h"   // execute
+#include "chalk.h"     // color constants
+#include "constants.h" // constants
 
 int main (void)
 {
     printWelcome();
 
-    char *line;      // Stores the user's current entered line
-    char *argv[ARGV_LENGTH];  // Stores the current line split into args  
-    
-    char cwd[CWD_LENGTH];  // Stores the current workind directory
-    char promptMessage[PROMPT_MESSAGE_LENGTH]; // Stores the entire prompt line
+    char *line;                                 // Stores the user's current entered line
+    char *argv[ARGV_LENGTH];                    // Stores the current line split into args   
+    char cwd[CWD_LENGTH];                       // Stores the current workind directory
+    char promptMessage[PROMPT_MESSAGE_LENGTH];  // Stores the entire prompt line
 
     // Main prompt loop
     while (1)
     {
-        // fprintf(stderr, "\nGET NEW INPUT\n");
-
         // Get Current Working Directory
         if (getcwd(cwd, sizeof(cwd)) != NULL)
         {
@@ -40,6 +37,7 @@ int main (void)
                 exit(1);
             }
 
+            // Check for git repo & prompt for input
             char *gitBranch = (char *) malloc( GIT_BRANCH_LENGTH * sizeof(char *));
             if (getCurrentGitBranch(gitBranch) == 0) 
             {
@@ -54,8 +52,6 @@ int main (void)
             else
             {
                 // Git Branch found
-                // printf("Current Git Branch: '%s'\n", gitBranch);
-
                 // Prompt User for input
                 sprintf(promptMessage,
                         "%s%s%s@%s%s%s%s(%s)%s%s", 
@@ -66,8 +62,8 @@ int main (void)
             }
             free(gitBranch);
 
+            // Get the input
             line = readline(promptMessage);
-
             if (line == NULL)
             {
                 perror("READLINE ERROR!");

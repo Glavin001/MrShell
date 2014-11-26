@@ -8,13 +8,14 @@
 
 #include "tree.h"
 #include "execute.h"
+#include "constants.h"
 
 void buildTree(node **tree, char **argv, int *map)
 {
     // Build Operators Map
     // Iterate thru all args in argv backwards
     int i;
-    for (i=63; i>=0; i--)
+    for (i=ARGV_LENGTH-1; i>=0; i--)
     {
         // Check if arg is an operator
         if (map[i] != 0)
@@ -122,7 +123,7 @@ void execute(char **argv)
 {
     // fprintf(stderr, "Execute!\n");
 
-    int map[64] = {0};
+    int map[ARGV_LENGTH] = {0};
     buildMap(map, argv);
 
     // fprintf(stderr, "Map built\n");
@@ -247,7 +248,7 @@ void execTree(node *tree, int *fdIn, int *fdOut)
     }
     else
     {
-        fprintf(stderr, "Tree is empty.\n");
+        fprintf(stderr, "MrShell error: Execution Tree is empty. Please check your syntax.\n");
     }
 }
 

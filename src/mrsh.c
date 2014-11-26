@@ -13,16 +13,17 @@
 #include "parse.h"   // parse
 #include "execute.h" // execute
 #include "chalk.h"   // color constants
+#include "constants.h"
 
 int main (void)
 {
     printWelcome();
 
     char *line;      // Stores the user's current entered line
-    char *argv[64];  // Stores the current line split into args  
+    char *argv[ARGV_LENGTH];  // Stores the current line split into args  
     
-    char cwd[1024];  // Stores the current workind directory
-    char promptMessage[1024]; // Stores the entire prompt line
+    char cwd[CWD_LENGTH];  // Stores the current workind directory
+    char promptMessage[PROMPT_MESSAGE_LENGTH]; // Stores the entire prompt line
 
     // Main prompt loop
     while (1)
@@ -54,6 +55,8 @@ int main (void)
                 perror("READLINE ERROR!");
                 exit(1);
             }
+
+            trimwhitespace(line);
 
             // Add the line to history
             if (line[0]!=0)
@@ -89,6 +92,7 @@ int main (void)
             {
                 execute(argv);
             }
+            free(line);
         }
         else
         {

@@ -1,7 +1,15 @@
 #include <stdio.h> // printf
+#include <stdlib.h>
+#include <string.h>
 
-void parse(char *line, char **argv)
+void parse(char *origLine, char **argv)
 {
+
+    // Duplicate `line`
+    char *line;
+    line = (char *) malloc(strlen(origLine));
+    strcpy(line, origLine); // see the below edit
+
     char beginQuote = '\0';
 
     // While not the end of line
@@ -69,6 +77,7 @@ void parse(char *line, char **argv)
                     c++;
                 }
                 // fprintf(stderr, "End c: '%s', line: '%s'\n", c, line);
+                beginQuote = '\0'; // Reset
 
             }
             // Otherwise skip through until end of argument

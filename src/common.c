@@ -127,7 +127,7 @@ char *trimwhitespace(char *str)
   return str;
 }
 
-int getCurrentGitBranch(char *readbuffer)
+int getCurrentGitBranch(char *buff)
 {
     char *cmd = "git symbolic-ref --short -q HEAD";
     char *cmdv[6];
@@ -159,17 +159,40 @@ int getCurrentGitBranch(char *readbuffer)
     close(fdOut[1]);    /* close write end of pipe               */
     close(fdIn[1]);    /* close write end of pipe               */
     
-    // char *readbuffer = (char *) malloc( 80 * sizeof(char *));
-    // char readbuffer[64];
-    int nbytes = read(fdOut[0], readbuffer, sizeof(readbuffer));
+    int nbytes = read(fdOut[0], buff, sizeof(buff));
     
     close(fdOut[0]);    /* close read end of pipe               */
     close(fdIn[0]);    /* close read end of pipe               */
     
-    // printf("Current Git Branch Befor: '%s' '%i'\n", readbuffer, nbytes);
-    trimwhitespace(readbuffer);
+    // printf("Current Git Branch Befor: '%s' '%i'\n", buff, nbytes);
+    trimwhitespace(buff);
 
-    // printf("Current Git Branch After: '%s' '%i'\n", readbuffer, nbytes);
+    // This fixes an error where it returns
+    // a branch with a space and a trailing character that
+    // breaks the terminal
+    // and causes segfaults.
+    // This will fillin NULL character for every character
+    // after a space, etc.
+    char *p = buff;
+    // While not the end of line
+    bool foundSpace = false;
+    while (*p != '\0')
+    {
+        // printf("Top of while loop\n");
+        
+        // While there are spaces, tabs or new lines replace with null
+        // printf("Line before nested while loop 1: %s\n", p);
+        if (foundSpace || *p == ' ' || *p == '\t' || *p == '\n') 
+        {
+            // printf("Replace space, tab, or new line: %c\n", *p);
+            *p++ = '\0';
+            foundSpace = true;
+        }
+        // printf("Line after nested while loop 1: %s\n", p);
+        p++;
+    }
+
+    // printf("Current Git Branch After: '%s' '%i'\n", buff, nbytes);
 
     return nbytes;
 }

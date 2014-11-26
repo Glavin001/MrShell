@@ -235,12 +235,12 @@ void execTree(node *tree, int *fdIn, int *fdOut)
             {
                 // fprintf(stderr, "left: %s\n", tree->left->command[0]);
                 // fprintf(stderr, "right: %s\n", tree->right->command[0]);
-                pipeTreeToFile(tree, fdIn, fdOut, O_CREAT | O_TRUNC | O_WRONLY);
+                pipeTreeToFile(tree, fdIn, O_CREAT | O_TRUNC | O_WRONLY);
                 return;
             }
             else if (strcmp(op, ">>") == 0)
             {
-                pipeTreeToFile(tree, fdIn, fdOut, O_CREAT | O_APPEND | O_WRONLY);
+                pipeTreeToFile(tree, fdIn, O_CREAT | O_APPEND | O_WRONLY);
                 return;
             }
             else
@@ -275,7 +275,7 @@ void pipeTree(node *tree, int *fdIn, int *fdOut)
 
 }
 
-void pipeTreeToFile(node *tree, int *fdIn, int *fdOut, int oflags)
+void pipeTreeToFile(node *tree, int *fdIn, int oflags)
 {
     // Create pipe, check for failure
     int fdPipe[2]; // [read, write]

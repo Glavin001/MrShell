@@ -4,5 +4,6 @@
 #define ARGV_LENGTH 64
 #define CWD_LENGTH 1024
 #define PROMPT_MESSAGE_LENGTH 2048
+#define GIT_BRANCH_LENGTH 64
 
 #endif

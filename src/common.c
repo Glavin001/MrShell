@@ -4,6 +4,7 @@
 #include <stdlib.h>  // exit
 #include <unistd.h>  // fork, wait, execvp, chdir, pid_t
 
+#include "constants.h"
 #include "welcome.h" // welcome screen constants
 #include "chalk.h"   // color constants
 #include "execute.h"
@@ -159,7 +160,10 @@ int getCurrentGitBranch(char *buff)
     close(fdOut[1]);    /* close write end of pipe               */
     close(fdIn[1]);    /* close write end of pipe               */
     
-    int nbytes = read(fdOut[0], buff, sizeof(buff));
+    int len = (sizeof(char *) * GIT_BRANCH_LENGTH);
+    // fprintf(stderr, "sizeof(buff) : %i\n", len);
+
+    int nbytes = read(fdOut[0], buff, len);
     
     close(fdOut[0]);    /* close read end of pipe               */
     close(fdIn[0]);    /* close read end of pipe               */

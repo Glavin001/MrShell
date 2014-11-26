@@ -40,7 +40,7 @@ int main (void)
                 exit(1);
             }
 
-            char *gitBranch = (char *) malloc( 20 * sizeof(char *));
+            char *gitBranch = (char *) malloc( GIT_BRANCH_LENGTH * sizeof(char *));
             if (getCurrentGitBranch(gitBranch) == 0) 
             {
                 // No branch found
